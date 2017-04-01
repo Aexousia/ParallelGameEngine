@@ -77,7 +77,8 @@ public:
 };
 
 //// components need systems by priority to prevent changes 
-//// from a more important system happening simultaeneously
+//// from a more important system happening simultaneously
+//// automapper also needs to know all systems associated with the component type
 //SYSTEMS_BY_PRIORITY(Component)
 //{
 //	SYSTEM(PhysicsSystem);

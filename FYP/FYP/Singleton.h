@@ -19,3 +19,21 @@ private:
 
 template<typename T>
 T* Singleton<T>::m_instance = nullptr;
+
+#define SINGLETON(x) x::getInstance()
+
+//// Usage defined below
+
+//class X : public Singleton<X>
+//{
+//public: 
+//	int member()
+//	{
+//
+//	}
+//};
+//
+//int main()
+//{
+//	SINGLETON(X)->member();
+//}

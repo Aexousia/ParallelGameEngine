@@ -4,33 +4,58 @@
 #include "LTimer.h"
 #include <iostream>
 #include <sstream>
+#include "imgui_impl_sdl_gl3.h"
+#include <../dependancies/GL/glew.h>
+#include "imgui.h"
 using namespace std;
 
 const int MAX_FPS = std::numeric_limits<int>::max();
 const int SCREEN_TICKS_PER_FRAME = 1000 / MAX_FPS;
 
 Game::Game(Size2D screenSize, Size2D worldSize) : 
-	m_camera(new Camera2D(Rect(0, 0, screenSize.w, screenSize.h), 1)), 
 	m_screenSize(screenSize), 
 	m_worldSize(worldSize),
 	m_threadingEnabled(true)
 {
 	TaskQueue::getInstance()->spawnWorkers();
 	quit = false;
-	m_camera->setLevelSize(Size2D(worldSize.w, worldSize.h));
 }
 
 Game::~Game()
 {
 }
-
+SDL_Window *window = nullptr;
 bool Game::init() {
 	Size2D winSize(m_screenSize.w, m_screenSize.h);
 	srand(0);
 
-	//creates our renderer, which looks after drawing and the window
-	renderer.init(winSize, "Demo", m_camera);
-	
+	// Setup window
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	SDL_DisplayMode current;
+	SDL_GetCurrentDisplayMode(0, &current);
+	window = SDL_CreateWindow("Parallel Game Engine - George Dixon", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_screenSize.w, m_screenSize.h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	SDL_GLContext glcontext = SDL_GL_CreateContext(window);
+	glewInit();
+
+	// Setup ImGui binding
+	ImGui_ImplSdlGL3_Init(window);
+
+	// Load Fonts
+	// (there is a default font, this is only if you want to change it. see extra_fonts/README.txt for more details)
+	//ImGuiIO& io = ImGui::GetIO();
+	//io.Fonts->AddFontDefault();
+	//io.Fonts->AddFontFromFileTTF("../../extra_fonts/Cousine-Regular.ttf", 15.0f);
+	//io.Fonts->AddFontFromFileTTF("../../extra_fonts/DroidSans.ttf", 16.0f);
+	//io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyClean.ttf", 13.0f);
+	//io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
+	//io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+
 	return true;
 }
 
@@ -42,25 +67,39 @@ void Game::destroy()
 //** calls update on all game entities*/
 void Game::update(float dt)
 {
-	renderer.present();
+	ImGui_ImplSdlGL3_NewFrame(window);
+
+
+
+	// Rendering
+	glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
+	glClearColor(0, 0, 0, 0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	ImGui::Render();
+	SDL_GL_SwapWindow(window);
 }
 
 /** update and render game entities*/
 void Game::loop()
 {
 	LTimer capTimer;//to cap framerate
+	SDL_Event event;
 
 	int frameNum = 0;
 	float timeSinceLastFrameCheck = 0;
 	while (!quit) { //game loop
 
 		capTimer.start();
-
 		unsigned int currentTime = LTimer::gameTime();//millis since game started
 		float deltaTime = (currentTime - lastTime) / 1000.0;//time since last update
 		lastTime = currentTime; //save the curent time for next frame
 
-		//inputManager.ProcessInput();
+		while (SDL_PollEvent(&event))
+		{
+			ImGui_ImplSdlGL3_ProcessEvent(&event);
+			if (event.type == SDL_QUIT)
+				quit = true;
+		}
 
 		update(deltaTime);
 
@@ -71,24 +110,6 @@ void Game::loop()
 		else
 		{
 
-		}
-
-		timeSinceLastFrameCheck += deltaTime;
-
-		frameNum++;
-		if (timeSinceLastFrameCheck > 1)
-		{
-			timeSinceLastFrameCheck = 0;
-
-			//The frame rate as a string
-			std::stringstream caption;
-
-			//Calculate the frames per second and create the string
-			caption << "Frames Per Second: " << frameNum;
-			frameNum = 0;
-
-			//Reset the caption
-			SDL_SetWindowTitle(renderer.getWindow(), caption.str().c_str());
 		}
 
 		int frameTicks = capTimer.getTicks();//time since start of frame

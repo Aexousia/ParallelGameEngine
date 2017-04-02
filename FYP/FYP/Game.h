@@ -14,8 +14,6 @@ class Game
 	Size2D m_screenSize;
 	Size2D m_worldSize;
 
-	bool m_threadingEnabled;
-
 public:
 	Game(Size2D screenSize, Size2D worldSize);
 	~Game();

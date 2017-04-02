@@ -15,15 +15,16 @@ const int SCREEN_TICKS_PER_FRAME = 1000 / MAX_FPS;
 Game::Game(Size2D screenSize, Size2D worldSize) : 
 	m_screenSize(screenSize), 
 	m_worldSize(worldSize),
-	m_threadingEnabled(true)
+	quit(false)
 {
-	TaskQueue::getInstance()->spawnWorkers();
-	quit = false;
+	SINGLETON(TaskQueue)->spawnWorkers();
+	SINGLETON(TaskQueue)->threadingActive = true;
 }
 
 Game::~Game()
 {
 }
+
 SDL_Window *window = nullptr;
 bool Game::init() {
 	Size2D winSize(m_screenSize.w, m_screenSize.h);
@@ -39,7 +40,7 @@ bool Game::init() {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
-	window = SDL_CreateWindow("Parallel Game Engine - George Dixon", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_screenSize.w, m_screenSize.h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("Parallel Game Engine - George Dixon", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_screenSize.w, m_screenSize.h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_FULLSCREEN*/);
 	SDL_GLContext glcontext = SDL_GL_CreateContext(window);
 	glewInit();
 
@@ -69,7 +70,13 @@ void Game::update(float dt)
 {
 	ImGui_ImplSdlGL3_NewFrame(window);
 
-
+	for (int i = 0; i < 50; i++)
+	{
+		SINGLETON(TaskQueue)->addJob(
+			std::bind([&] { float x;
+		for (int y = 0; y < 10000; y++) { x = cosf(1782.45678) * cosf(2179271) * y; } })
+		);
+	}
 
 	// Rendering
 	glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
@@ -99,18 +106,23 @@ void Game::loop()
 			ImGui_ImplSdlGL3_ProcessEvent(&event);
 			if (event.type == SDL_QUIT)
 				quit = true;
+			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+				quit = true;
+			if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_UP)
+			{
+				SINGLETON(TaskQueue)->incrementActiveWorkers();
+				std::cout << "Active Workers" << SINGLETON(TaskQueue)->getNumActiveWorkers() << std::endl;
+			}
+			if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_DOWN)
+			{
+				SINGLETON(TaskQueue)->decrementActiveWorkers();
+				std::cout << "Active Workers" << SINGLETON(TaskQueue)->getNumActiveWorkers() << std::endl;
+			}
 		}
 
 		update(deltaTime);
 
-		if (m_threadingEnabled)
-		{
-			TaskQueue::getInstance()->waitUntilIdle();
-		}
-		else
-		{
-
-		}
+		SINGLETON(TaskQueue)->waitUntilIdle();
 
 		int frameTicks = capTimer.getTicks();//time since start of frame
 		if (frameTicks < SCREEN_TICKS_PER_FRAME)

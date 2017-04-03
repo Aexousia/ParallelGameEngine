@@ -4,6 +4,7 @@
 #include <vector>
 #include "TaskQueue.h"
 #include "../dependancies/sdl/SDL.h"
+#include "AutoMapper.h"
 
 /** The game objct whic manages the game loop*/
 class Game

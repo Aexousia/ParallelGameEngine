@@ -130,7 +130,6 @@ void TaskQueue::jobDone()
 	if (m_jobs.empty() && m_busy == 0)
 	{
 		SDL_SemPost(m_idle);
-		std::cout << "F" << std::endl;
 	}
 	SDL_UnlockMutex(m_queueLock);
 	SDL_UnlockMutex(m_processedLock);

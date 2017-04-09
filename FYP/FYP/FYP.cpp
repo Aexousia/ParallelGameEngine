@@ -11,7 +11,7 @@ using namespace std;
 int main()
 {
 	srand(time(0));
-	Game game(Size2D(1280, 720), Size2D(1080, 1080));
+	Game game(Size2D(1280, 720));
 
 	cout << "Initialising Game" << endl;
 

@@ -13,10 +13,9 @@ class Game
 	bool quit;
 
 	Size2D m_screenSize;
-	Size2D m_worldSize;
 
 public:
-	Game(Size2D screenSize, Size2D worldSize);
+	Game(Size2D screenSize);
 	~Game();
 
 	bool init();

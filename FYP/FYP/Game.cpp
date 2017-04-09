@@ -12,9 +12,28 @@ using namespace std;
 const int MAX_FPS = std::numeric_limits<int>::max();
 const int SCREEN_TICKS_PER_FRAME = 1000 / MAX_FPS;
 
-Game::Game(Size2D screenSize, Size2D worldSize) : 
+//class Y : public ISystem, public IAutoMapUser<Y>
+//{
+//	void process(float dt) override {};
+//};
+//
+//class Z : public ISystem, public IAutoMapUser<Y>
+//{
+//	void process(float dt) override {};
+//};
+//
+//class X : public AutoMapper<X, Y, Z>, public IComponent
+//{
+//	X() : IComponent(rand() % 1000),
+//		SYSTEMS({
+//			SYSTEM(Y),
+//			SYSTEM(Z, Priority::High)
+//		}
+//		) {};
+//};
+
+Game::Game(Size2D screenSize) : 
 	m_screenSize(screenSize), 
-	m_worldSize(worldSize),
 	quit(false)
 {
 	SINGLETON(TaskQueue)->spawnWorkers();
@@ -77,6 +96,8 @@ void Game::update(float dt)
 		for (int y = 0; y < 10000; y++) { x = cosf(1782.45678) * cosf(2179271) * y; } })
 		);
 	}
+
+	ImGui::ShowTestWindow();
 
 	// Rendering
 	glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);

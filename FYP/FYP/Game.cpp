@@ -12,25 +12,27 @@ using namespace std;
 const int MAX_FPS = std::numeric_limits<int>::max();
 const int SCREEN_TICKS_PER_FRAME = 1000 / MAX_FPS;
 
-//class Y : public ISystem, public IAutoMapUser<Y>
-//{
-//	void process(float dt) override {};
-//};
-//
-//class Z : public ISystem, public IAutoMapUser<Y>
-//{
-//	void process(float dt) override {};
-//};
-//
-//class X : public AutoMapper<X, Y, Z>, public IComponent
-//{
-//	X() : IComponent(rand() % 1000),
-//		SYSTEMS({
-//			SYSTEM(Y),
-//			SYSTEM(Z, Priority::High)
-//		}
-//		) {};
-//};
+class Y : public ISystem, public IAutoMapUser<Y>
+{
+	void process(float dt) override {};
+};
+
+class Z : public ISystem, public IAutoMapUser<Y>
+{
+	void process(float dt) override {};
+};
+
+class X : public IComponent, public AutoMapper<X, Y, Z>
+{
+	char x[10000];
+public:
+	X() : IComponent(nullptr),
+		SYSTEMS({
+			SYSTEM(Y),
+			SYSTEM(Z, Priority::High)
+		}
+		) {};
+};
 
 Game::Game(Size2D screenSize) : 
 	m_screenSize(screenSize), 
@@ -89,12 +91,16 @@ void Game::update(float dt)
 {
 	ImGui_ImplSdlGL3_NewFrame(window);
 
+	X aaaa;
+
 	for (int i = 0; i < 50; i++)
 	{
 		SINGLETON(TaskQueue)->addJob(
 			std::bind([&] { float x;
 		for (int y = 0; y < 10000; y++) { x = cosf(1782.45678) * cosf(2179271) * y; } })
 		);
+
+		
 	}
 
 	ImGui::ShowTestWindow();

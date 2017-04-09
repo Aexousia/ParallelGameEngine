@@ -119,6 +119,14 @@ void TaskQueue::addJob(std::function<void()> f)
 
 void TaskQueue::waitUntilIdle()
 {
+	SDL_LockMutex(m_processedLock);
+	SDL_LockMutex(m_queueLock);
+	if (m_jobs.empty() && m_busy == 0)
+	{
+		SDL_SemPost(m_idle);
+	}
+	SDL_UnlockMutex(m_queueLock);
+	SDL_UnlockMutex(m_processedLock);
 	SDL_SemWait(m_idle);
 }
 

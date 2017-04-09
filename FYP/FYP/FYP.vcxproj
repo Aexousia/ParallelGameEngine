@@ -174,6 +174,7 @@
     <ClInclude Include="stb_textedit.h" />
     <ClInclude Include="stb_truetype.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="SyncManager.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TaskQueue.h" />
   </ItemGroup>

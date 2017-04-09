@@ -69,6 +69,9 @@
     <ClInclude Include="imgui_impl_sdl_gl3.h">
       <Filter>imgui</Filter>
     </ClInclude>
+    <ClInclude Include="SyncManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

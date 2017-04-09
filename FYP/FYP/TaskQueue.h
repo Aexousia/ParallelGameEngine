@@ -7,6 +7,7 @@
 #include <vector>
 #include <functional>
 #include <iostream>
+#include "SyncManager.h"
 
 class TaskQueue : public Singleton<TaskQueue>
 {
@@ -45,6 +46,7 @@ static int worker(void* ptr)
 	int id = *p_id;
 	delete p_id;
 	srand(0);
+	SINGLETON(SyncManager)->registerThread();//this is done so that we don't have to synchronize notificationQueue access
 	TaskQueue * taskQueue = SINGLETON(TaskQueue);
 	SDL_mutex * lock = taskQueue->getLock();
 	SDL_sem * canConsume = taskQueue->canConsume();

@@ -12,7 +12,7 @@ static int newId()
 
 struct IComponent
 {
-	IComponent(IEntity* parent) : id(newId()) {};
+	IComponent() : id(newId()) {};
 
 	virtual ~IComponent() {};
 	virtual void ChangeOccured(Change c, IComponent* subject) {};
@@ -20,7 +20,6 @@ struct IComponent
 	{
 
 	}
-	IEntity* parent;
 	int id;
 	int priority;
 };

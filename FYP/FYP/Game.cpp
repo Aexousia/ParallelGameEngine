@@ -26,7 +26,7 @@ class X : public IComponent, public AutoMapper<X, Y, Z>
 {
 	char x[10000];
 public:
-	X() : IComponent(nullptr),
+	X() :
 		SYSTEMS({
 			SYSTEM(Y),
 			SYSTEM(Z, Priority::High)

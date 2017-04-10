@@ -121,6 +121,12 @@ void SyncManager::DistributeChanges()
 	{
 		SINGLETON(TaskQueue)->addJob(std::bind(&ChangeNotification::send, notif));
 	}
+
+	SINGLETON(TaskQueue)->waitUntilIdle();
+	for (auto& notif : notificationQueue)
+	{
+		delete notif;
+	}
 }
 
 void SyncManager::registerThread()

@@ -9,12 +9,20 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="imgui">
       <UniqueIdentifier>{f68ca0a7-23d2-4a8c-86a6-dd33452d8174}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{4ebd4675-962f-4834-987c-01b498edd9cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ECS">
+      <UniqueIdentifier>{df1be672-1c40-465c-8ba3-95cd6f2af3de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ECS\Systems">
+      <UniqueIdentifier>{bc4d7abb-ce6b-4ffa-b79d-cbe282087070}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ECS\Components">
+      <UniqueIdentifier>{79a8b681-833f-4415-b0ce-2372ab02f8c5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,15 +35,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ECSInterfaces.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AutoMapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Singleton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BasicTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -43,9 +42,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LTimer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TaskQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="imconfig.h">
@@ -69,8 +65,32 @@
     <ClInclude Include="imgui_impl_sdl_gl3.h">
       <Filter>imgui</Filter>
     </ClInclude>
+    <ClInclude Include="ECSInterfaces.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
     <ClInclude Include="SyncManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoMapper.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskQueue.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemManager.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderSystem.h">
+      <Filter>ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="UISystem.h">
+      <Filter>ECS\Systems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -86,9 +106,6 @@
     <ClCompile Include="LTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TaskQueue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="imgui.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -101,8 +118,11 @@
     <ClCompile Include="imgui_impl_sdl_gl3.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="TaskQueue.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
     <ClCompile Include="SyncManager.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Framework</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

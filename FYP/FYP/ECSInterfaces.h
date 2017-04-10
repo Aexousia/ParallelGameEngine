@@ -10,6 +10,34 @@ static int newId()
 	return x++;
 }
 
+class ISystem
+{
+private:
+	float m_timeSinceLastUpdate;
+	float maxTimeTillUpdate;
+public:
+	ISystem(float ticksPerSecond = std::numeric_limits<float>::max()) : maxTimeTillUpdate(1.f / ticksPerSecond), m_timeSinceLastUpdate(0) {}
+
+	virtual void SetTicksPerSecond(float ticksPerSecond)
+	{
+		maxTimeTillUpdate = (1.f / ticksPerSecond);
+		m_timeSinceLastUpdate = 0;
+	}
+
+	virtual bool ready(float dt)
+	{
+		m_timeSinceLastUpdate += dt;
+		if (m_timeSinceLastUpdate >= maxTimeTillUpdate)
+		{
+			m_timeSinceLastUpdate = 0;
+			return true;
+		}
+		return false;
+	}
+
+	virtual void process(float dt) = 0;
+};
+
 struct IComponent
 {
 	IComponent() : id(newId()) {};

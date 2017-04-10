@@ -36,12 +36,6 @@ class IAutoMapUser : public Singleton<self>
 	}
 };
 
-
-class ISystem 
-{
-	virtual void process(float dt) = 0;
-};
-
 class NULL_SYSTEM : public ISystem
 {
 public:
@@ -191,7 +185,7 @@ namespace Priority
 }
 
 
-#define SYSTEM(name, priority) { SINGLETON(name), priority }
+#define SYSTEM_PRIORITY(name, priority) { SINGLETON(name), priority }
 #define SYSTEM(name) { SINGLETON(name), Priority::Normal }
 #define SYSTEMS AutoMapper
 

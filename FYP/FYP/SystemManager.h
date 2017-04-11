@@ -11,9 +11,9 @@ public:
 		for (auto& system : m_systems)
 		{
 			SINGLETON(TaskQueue)->addJob(std::bind([system, dt]() {
-				if (system->ready(dt))
+				if (float systemDelta = system->ready(dt))
 				{
-					system->process(dt);
+					system->process(systemDelta);
 				}
 			}));
 		}

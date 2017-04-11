@@ -11,28 +11,6 @@ using namespace std;
 const int MAX_FPS = std::numeric_limits<int>::max();
 const int SCREEN_TICKS_PER_FRAME = 1000 / MAX_FPS;
 
-class Y : public ISystem, public IAutoMapUser<Y>
-{
-	void process(float dt) override {};
-};
-
-class Z : public ISystem, public IAutoMapUser<Y>
-{
-	void process(float dt) override {};
-};
-
-class X : public IComponent, public AutoMapper<X, Y, Z>
-{
-	char x[10000];
-public:
-	X() :
-		SYSTEMS({
-			SYSTEM(Y),
-			SYSTEM(Z, Priority::High)
-		}
-		) {};
-};
-
 Game::Game(Size2D screenSize) : 
 	m_screenSize(screenSize), 
 	quit(false)
@@ -54,11 +32,11 @@ bool Game::init() {
 	SINGLETON(TestSystem)->initialize(m_screenSize);
 
 	//registerSystems
-	REGISTER_SYSTEM_TICK_RATE(RenderSystem, 30);
-	REGISTER_SYSTEM(TestSystem);
+	REGISTER_SYSTEM(RenderSystem);
+	REGISTER_SYSTEM_TICK_RATE(TestSystem, 20);
 
 	//create entities
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < 500; i++)
 	{
 		circles.push_back(new Circle());
 	}
@@ -76,16 +54,18 @@ void Game::update(float dt)
 {
 	/*for (int i = 0; i < 50; i++)
 	{
-		SINGLETON(TaskQueue)->addJob(
-			std::bind([&] { float x;
-		for (int y = 0; y < 10000; y++) { x = cosf(1782.45678) * cosf(2179271) * y; } })
-		);
+		TASK_BEGIN()
+		{
+			float x;
+			for (int y = 0; y < 10000; y++) { x = cosf(1782.45678) * cosf(2179271) * y; }
+		}
+		TASK_END
+		
 	}*/
 
 	SINGLETON(SystemManager)->runSystems(dt);
 	SINGLETON(TaskQueue)->waitUntilIdle();
 	SINGLETON(SyncManager)->DistributeChanges();
-	SINGLETON(TaskQueue)->waitUntilIdle();
 }
 
 /** update and render game entities*/
@@ -97,10 +77,8 @@ void Game::loop()
 	int frameNum = 0;
 	float timeSinceLastFrameCheck = 0;
 
-	SINGLETON(TaskQueue)->waitUntilIdle();
 	SINGLETON(SyncManager)->DistributeChanges();
-	SINGLETON(TaskQueue)->waitUntilIdle();
-
+	
 	while (!quit) { //game loop
 
 		capTimer.start();

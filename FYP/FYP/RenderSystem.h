@@ -55,7 +55,7 @@ public:
 
 	void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius) {
 		int i;
-		int triangleAmount = 20; //# of triangles used to draw circle
+		int triangleAmount = 4; //# of triangles used to draw circle
 
 								 //GLfloat radius = 0.8f; //radius
 		GLfloat twicePi = 2.0f * 3.14;

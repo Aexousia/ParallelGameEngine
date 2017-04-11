@@ -25,15 +25,19 @@ public:
 		m_timeSinceLastUpdate = 0;
 	}
 
-	virtual bool ready(float dt)
+	virtual float ready(float dt)
 	{
-		m_timeSinceLastUpdate += dt;
-		if (m_timeSinceLastUpdate >= maxTimeTillUpdate)
+		float timeSinceLastUpdate = m_timeSinceLastUpdate + dt;
+		if (timeSinceLastUpdate >= maxTimeTillUpdate)
 		{
 			m_timeSinceLastUpdate = 0;
-			return true;
+			return timeSinceLastUpdate + dt;
 		}
-		return false;
+		else
+		{
+			m_timeSinceLastUpdate = timeSinceLastUpdate;
+			return 0;
+		}
 	}
 
 	virtual void process(float dt) = 0;

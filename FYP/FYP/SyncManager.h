@@ -4,6 +4,7 @@
 #include "ECSInterfaces.h"
 #include "../dependancies/sdl/SDL.h"
 #include <unordered_map>
+#include <map>
 
 //this struct is just a simple data structure which encapsulates a unit 
 //of change to be distributed to an observer
@@ -59,6 +60,10 @@ public:
 	void registerChanges(IComponent* self, Change changes);
 
 	void DistributeChanges();
+
+	void GroupNotificationsByObserver(std::unordered_map<IComponent*, std::vector<ChangeNotification*>>& out);
+
+	void FilterNotifications(std::vector<ChangeNotification*>& wanted, std::vector<ChangeNotification*>& unwanted, std::unordered_map<IComponent*, std::vector<ChangeNotification*>>& notifsByObserver);
 
 	//allows us to create a notification queue for each thread, allowing us to avoid synchronizing access to notificationQueue
 	void registerThread();

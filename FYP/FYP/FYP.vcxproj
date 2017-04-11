@@ -162,6 +162,7 @@
   <ItemGroup>
     <ClInclude Include="AutoMapper.h" />
     <ClInclude Include="BasicTypes.h" />
+    <ClInclude Include="Circle.h" />
     <ClInclude Include="ECSInterfaces.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="Game.h" />
@@ -180,6 +181,7 @@
     <ClInclude Include="SystemManager.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TaskQueue.h" />
+    <ClInclude Include="TestSystem.h" />
     <ClInclude Include="UISystem.h" />
   </ItemGroup>
   <ItemGroup>
@@ -190,6 +192,7 @@
     <ClCompile Include="imgui_draw.cpp" />
     <ClCompile Include="imgui_impl_sdl_gl3.cpp" />
     <ClCompile Include="LTimer.cpp" />
+    <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -198,6 +201,7 @@
     </ClCompile>
     <ClCompile Include="SyncManager.cpp" />
     <ClCompile Include="TaskQueue.cpp" />
+    <ClCompile Include="TestSystem.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

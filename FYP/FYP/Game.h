@@ -4,6 +4,7 @@
 #include <vector>
 #include "Framework.h"
 #include "../dependancies/sdl/SDL.h"
+#include "Circle.h"
 
 /** The game objct whic manages the game loop*/
 class Game
@@ -12,6 +13,7 @@ class Game
 	bool quit;
 
 	Size2D m_screenSize;
+	std::vector<Circle*> circles;
 
 public:
 	Game(Size2D screenSize);

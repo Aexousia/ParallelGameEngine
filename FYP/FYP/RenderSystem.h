@@ -3,7 +3,7 @@
 #include "BasicTypes.h"
 #include "UISystem.h"
 
-class RenderSystem : public ISystem, public IAutoMapUser<RenderSystem>
+class RenderSystem : public ISystem, public Singleton<RenderSystem>
 {
 public:
 	RenderSystem()
@@ -51,24 +51,24 @@ public:
 		SDL_GL_MakeCurrent(m_window, NULL); //remove context binding of opengl from main thread
 	}
 
-	void process(float dt)
-	{
-		//add binding of opengl context to this thread
-		SDL_GL_MakeCurrent(m_window, m_glcontext);
-		SINGLETON(UISystem)->UpdateUI(dt, m_window);
+	void process(float dt);
 
-		// Rendering
-		glViewport(0, 0, (int)m_windowSize.w, (int)m_windowSize.h);
-		glClearColor(0, 0, 0, 0);
-		glClear(GL_COLOR_BUFFER_BIT);
-		
+	void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius) {
+		int i;
+		int triangleAmount = 20; //# of triangles used to draw circle
 
-		//RenderUI
-		SINGLETON(UISystem)->Render();
-		SDL_GL_SwapWindow(m_window);
+								 //GLfloat radius = 0.8f; //radius
+		GLfloat twicePi = 2.0f * 3.14;
 
-		//remove context binding of opengl from this thread
-		SDL_GL_MakeCurrent(m_window, NULL);
+		glBegin(GL_TRIANGLE_FAN);
+		glVertex2f(x, y); // center of circle
+		for (i = 0; i <= triangleAmount; i++) {
+			glVertex2f(
+				x + (radius * cos(i *  twicePi / triangleAmount)),
+				y + (radius * sin(i * twicePi / triangleAmount))
+			);
+		}
+		glEnd();
 	}
 
 private:

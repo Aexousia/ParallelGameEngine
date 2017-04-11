@@ -8,6 +8,7 @@
 #include <functional>
 #include <iostream>
 #include "SyncManager.h"
+#include <condition_variable>
 
 class TaskQueue : public Singleton<TaskQueue>
 {
@@ -15,8 +16,10 @@ private:
 	static TaskQueue * m_instance;
 	SDL_mutex* m_queueLock, *m_processedLock, *m_activeWorkersLock;
 	SDL_sem* m_canConsume, *m_workerSlotsFree, *m_idle;
+	std::condition_variable cv_finished;
 	std::deque<std::function<void()>> m_jobs;
 	std::vector<SDL_Thread*> m_workerPool;
+	bool m_waitingUntilIdle;
 	int m_busy;
 	int m_numActiveWorkers;
 	int m_maxActiveWorkers;
@@ -53,8 +56,8 @@ static int worker(void* ptr)
 	SDL_sem * workerSlotFree = taskQueue->workerSlotFree();
 	while (true)
 	{
-		SDL_SemWait(canConsume);
 		SDL_SemWait(workerSlotFree);
+		SDL_SemWait(canConsume);
 		auto& job = taskQueue->consumeJob();
 		try
 		{

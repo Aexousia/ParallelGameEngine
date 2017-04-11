@@ -8,22 +8,27 @@ public:
 	Point2D(float _x = 0, float _y = 0) :x(_x), y(_y) { };
 	float length() { return (float)std::sqrt(x*x + y*y); };
 
-	Point2D& operator*(float scale)
+	Point2D operator*(float scale)
 	{
 		return Point2D(this->x * scale, this->y * scale);
 	}
 
-	Point2D& operator+(Point2D rhs)
+	Point2D operator*(Point2D scale)
+	{
+		return Point2D(this->x * scale.x, this->y * scale.y);
+	}
+
+	Point2D operator+(Point2D rhs)
 	{
 		return Point2D(this->x + rhs.x, this->y + rhs.y);
 	}
 
-	Point2D& operator-(Point2D rhs)
+	Point2D operator-(Point2D rhs)
 	{
 		return Point2D(this->x - rhs.x, this->y - rhs.y);
 	}
 
-	Point2D& operator/(float scale)
+	Point2D operator/(float scale)
 	{
 		return Point2D(this->x / scale, this->y / scale);
 	}
@@ -53,12 +58,12 @@ public:
 	Size2D size;
 	Rect(Point2D p, Size2D s) :pos(p), size(s) {};
 	Rect(float x = 0, float y = 0, float w = 1, float h = 1) :pos(x, y), size(w, h) {};
-	Rect& operator*(float scale)
+	Rect operator*(float scale)
 	{
 		return Rect(this->pos.x * scale, this->pos.y * scale, this->size.w * scale, this->size.h * scale);
 	}
 
-	Rect& operator/(float scale)
+	Rect operator/(float scale)
 	{
 		return Rect(this->pos.x / scale, this->pos.y / scale, this->size.w / scale, this->size.h / scale);
 	}

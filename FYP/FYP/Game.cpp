@@ -43,6 +43,7 @@ Game::Game(Size2D screenSize) :
 
 Game::~Game()
 {
+	SINGLETON(TaskQueue)->waitUntilIdle();
 }
 
 bool Game::init() {
@@ -50,9 +51,17 @@ bool Game::init() {
 
 	//initialize systems
 	SINGLETON(RenderSystem)->initialize(m_screenSize);
+	SINGLETON(TestSystem)->initialize(m_screenSize);
 
 	//registerSystems
 	REGISTER_SYSTEM_TICK_RATE(RenderSystem, 30);
+	REGISTER_SYSTEM(TestSystem);
+
+	//create entities
+	for (int i = 0; i < 50; i++)
+	{
+		circles.push_back(new Circle());
+	}
 
 	return true;
 }
@@ -65,15 +74,16 @@ void Game::destroy()
 //** calls update on all game entities*/
 void Game::update(float dt)
 {
-	for (int i = 0; i < 50; i++)
+	/*for (int i = 0; i < 50; i++)
 	{
 		SINGLETON(TaskQueue)->addJob(
 			std::bind([&] { float x;
 		for (int y = 0; y < 10000; y++) { x = cosf(1782.45678) * cosf(2179271) * y; } })
 		);
-	}
+	}*/
 
 	SINGLETON(SystemManager)->runSystems(dt);
+	SINGLETON(TaskQueue)->waitUntilIdle();
 	SINGLETON(SyncManager)->DistributeChanges();
 	SINGLETON(TaskQueue)->waitUntilIdle();
 }
@@ -87,7 +97,9 @@ void Game::loop()
 	int frameNum = 0;
 	float timeSinceLastFrameCheck = 0;
 
+	SINGLETON(TaskQueue)->waitUntilIdle();
 	SINGLETON(SyncManager)->DistributeChanges();
+	SINGLETON(TaskQueue)->waitUntilIdle();
 
 	while (!quit) { //game loop
 

@@ -21,19 +21,15 @@ namespace AutoMap
 	template<typename Component, typename System>
 	std::vector<Component *>& get()
 	{
-		static std::pair<System*, std::vector<Component *>> instances = { nullptr, {} };
-		return instances.second;
+		static std::vector<Component *> instances;
+		return instances;
 	}
 }
 
 template<typename self>
 class IAutoMapUser : public Singleton<self>
 {
-	template<typename T>
-	std::vector<T *>& getComponents()
-	{
-		return AutoMap::get<T, self>();
-	}
+public:
 };
 
 class NULL_SYSTEM : public ISystem
@@ -60,6 +56,7 @@ public:
 	{
 		std::vector<IComponent*> copies;
 		Component* c = static_cast<Component *>(this);
+		Component* original = c;
 
 		auto system = SINGLETON(SYSTEM1);
 		assert(system);
@@ -96,6 +93,7 @@ public:
 
 		//Sync manager needs to know who to distribute changes to
 		SINGLETON(SyncManager)->addRecipients(copies, c->id);
+		SINGLETON(SyncManager)->registerChanges(original, static_cast<Change>(-1));//constructor gets called first, so distribution must be run on all changes
 	}
 
 	/*AutoMapper(const AutoMapper& rhs)

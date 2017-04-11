@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "TaskQueue.h"
+#include <assert.h>
 
 void TaskQueue::decrementActiveWorkers()
 {
@@ -58,6 +59,7 @@ TaskQueue::TaskQueue()
 	,	threadingActive(true)
 	,	m_workerSlotsFree(SDL_CreateSemaphore(0))
 	,	m_idle(SDL_CreateSemaphore(0))
+	,	m_waitingUntilIdle(false)
 {
 }
 
@@ -89,12 +91,11 @@ SDL_sem * TaskQueue::workerSlotFree()
 std::function<void()> TaskQueue::consumeJob()
 {
 	SDL_LockMutex(m_processedLock);
-	m_busy++;
-	SDL_UnlockMutex(m_processedLock);
-
 	SDL_LockMutex(m_queueLock);
+	m_busy++;
 	auto job = m_jobs.front();
 	m_jobs.pop_front();
+	SDL_UnlockMutex(m_processedLock);
 	SDL_UnlockMutex(m_queueLock);
 	return job;
 }
@@ -121,31 +122,38 @@ void TaskQueue::waitUntilIdle()
 {
 	SDL_LockMutex(m_processedLock);
 	SDL_LockMutex(m_queueLock);
-	if (m_jobs.empty() && m_busy == 0)
+	m_waitingUntilIdle = true;
+	if (m_jobs.empty() && m_busy == 0 && SDL_SemValue(m_idle) == 0)
 	{
 		SDL_SemPost(m_idle);
 	}
 	SDL_UnlockMutex(m_queueLock);
 	SDL_UnlockMutex(m_processedLock);
 	SDL_SemWait(m_idle);
+
+	SDL_LockMutex(m_processedLock);
+	m_waitingUntilIdle = false;
+	SDL_UnlockMutex(m_processedLock);
 }
 
 void TaskQueue::jobDone()
 {
-	SDL_LockMutex(m_processedLock);
-	m_busy--;
-	SDL_LockMutex(m_queueLock);
-	if (m_jobs.empty() && m_busy == 0)
-	{
-		SDL_SemPost(m_idle);
-	}
-	SDL_UnlockMutex(m_queueLock);
-	SDL_UnlockMutex(m_processedLock);
-
 	if (SDL_SemValue(m_workerSlotsFree) < m_numActiveWorkers)
 	{
 		SDL_SemPost(m_workerSlotsFree);
 	}
 
+	SDL_LockMutex(m_processedLock);
+	m_busy--;
+	if (m_waitingUntilIdle)
+	{
+		SDL_LockMutex(m_queueLock);
 
+		if (m_jobs.empty() && m_busy == 0 && SDL_SemValue(m_idle) == 0)
+		{
+			SDL_SemPost(m_idle);
+		}
+		SDL_UnlockMutex(m_queueLock);
+	}
+	SDL_UnlockMutex(m_processedLock);
 }

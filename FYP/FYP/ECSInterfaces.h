@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <vector>
 
 typedef unsigned int Change;
 class IEntity;

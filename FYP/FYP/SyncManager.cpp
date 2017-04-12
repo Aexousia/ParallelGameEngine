@@ -24,7 +24,7 @@ void SyncManager::registerChanges(IComponent * self, Change changes)
 	{
 		if (component != self)
 		{
-			m_notificationQueue[SDL_ThreadID()].push_back(new ChangeNotification(changes, component, self));
+			m_notificationQueue[SDL_ThreadID()].push_back(ChangeNotification(changes, component, self));
 		}
 	}
 }
@@ -37,105 +37,86 @@ void SyncManager::DistributeChanges()
 	//distribution of changes
 
 	//first, since we are now running sequentially, we must merge the notification queues allocated to each thread
-	std::unordered_map<IComponent*, std::vector<ChangeNotification*>> notifsByObserver;
-	std::vector<ChangeNotification*> notificationQueue, toDelete;
+	std::vector<ChangeNotification> notificationQueue;
+	std::vector<ChangeNotification*> filteredNotifications;
 	
-	GroupNotificationsByObserver(notifsByObserver);
+	auto t1 = SDL_GetTicks();
+	MergeNotificationQueue(notificationQueue);
+	auto t2 = SDL_GetTicks();
 
-	FilterNotifications(notificationQueue, toDelete, notifsByObserver);
+	auto t3 = SDL_GetTicks();
+	FilterNotifications(notificationQueue, filteredNotifications);
+	auto t4 = SDL_GetTicks();
+
+	std::cout << t2 - t1 << " - " << t4 - t3 << " - " << notificationQueue.size() << " - " << filteredNotifications.size() << std::endl;
 
 	//now we must run the synchronization in parallel to remove as much overhead as possible
 	//batches of 50 to make things faster
-	BATCH_LIST_BEGIN(notificationQueue, 50, notif)
+	BATCH_LIST_BEGIN(filteredNotifications, 50, notif)
 	{
 		notif->send();
 	}
 	BATCH_LIST_END
 
-	for (auto& dup : toDelete)
-	{
-		delete dup;
-		dup = nullptr;
-	}
-	toDelete.clear();
-
 	SINGLETON(TaskQueue)->waitUntilIdle();
-	for (auto& notif : notificationQueue)
-	{
-		delete notif;
-	}
 }
 
-void SyncManager::GroupNotificationsByObserver(std::unordered_map<IComponent*, std::vector<ChangeNotification*>>& out)
+void SyncManager::MergeNotificationQueue(std::vector<ChangeNotification>& out)
 {
 	for (auto& kv : m_notificationQueue)
 	{
-		//grouping notifications by observer will help with next step
-		for (auto& notif : kv.second)
-		{
-			out[notif->m_observer].push_back(notif);
-		}
+		out += kv.second;
 		kv.second.clear();
 	}
 }
 
-void SyncManager::FilterNotifications(std::vector<ChangeNotification*>& wanted, std::vector<ChangeNotification*>& unwanted, std::unordered_map<IComponent*, std::vector<ChangeNotification*>>& notifsByObserver)
+void SyncManager::FilterNotifications(std::vector<ChangeNotification>& notifications, std::vector<ChangeNotification*>& result)
 {
 	//then we must find duplicates and either cull or merge them appropriately
-	for (auto& kv : notifsByObserver)
+	std::map<IComponent*, ChangeNotification*> notifsByObserver;
+	
+	for (auto& newNotif : notifications)
 	{
-		auto& observerNotifs = kv.second;
+		auto& observerNotification = notifsByObserver[newNotif.m_observer];
 
 		//only one change operation is allowed per observer
-		if (observerNotifs.size() > 1)
+		if (observerNotification)
 		{
-			std::vector<ChangeNotification*> notifs;
-
 			//group by subject
 			//if multiple notifications from same subject just merge them
-			std::map<IComponent*, ChangeNotification*> notifsBySubject;
-			for (auto& notif : observerNotifs)
+			if (newNotif.m_subject == observerNotification->m_subject)
 			{
-				auto& it = notifsBySubject.find(notif->m_subject);
-				if (it != notifsBySubject.end()) // if theres duplicate notifications by subject/system
-				{
-					//merge them together
-					it->second->mergeNotification(notif);
-					unwanted.push_back(notif);
-				}
-				else
-				{
-					notifsBySubject[notif->m_subject] = notif;
-					notifs.push_back(notif);
-				}
+				observerNotification->mergeNotification(newNotif);
+				continue;
 			}
 
 			//once merging of notifications are done
 			//find highest priority notifications
 			//and remove notifications of lower priority
-			std::sort(notifs.begin(), notifs.end(), [](const ChangeNotification* c1, const ChangeNotification* c2) { return c1->m_subject->priority > c2->m_subject->priority; });
-			auto& it = std::find_if(notifs.begin(), notifs.end(), [notifs](const ChangeNotification* c) { return c->m_subject->priority > notifs[0]->m_subject->priority; });
-
-			if (it != notifs.end())
+			if (newNotif.m_subject->priority < observerNotification->m_subject->priority)
 			{
-				unwanted.insert(unwanted.end(), std::make_move_iterator(it), std::make_move_iterator(notifs.end()));
+				(*observerNotification) = newNotif;
+				continue;
+			}
+			else if (newNotif.m_subject->priority > observerNotification->m_subject->priority)
+			{
+				continue;
 			}
 
 			//once low priority notifications are gone
 			//sort by timestamp
-			std::sort(notifs.begin(), notifs.end(), [](const ChangeNotification* c1, const ChangeNotification* c2) { return c1->m_timestamp > c2->m_timestamp; });
-			it = notifs.begin() + 1;
-
-			if (it != notifs.end())
+			if (newNotif.m_timestamp > observerNotification->m_timestamp)
 			{
-				unwanted.insert(unwanted.end(), std::make_move_iterator(it), std::make_move_iterator(notifs.end()));
+				(*observerNotification) = newNotif;
+				continue;
 			}
-			wanted.push_back(notifs.front());
 		}
 		else
 		{
-			wanted.push_back(observerNotifs.front());
+			observerNotification = &newNotif;
 		}
+
+		result.push_back(observerNotification);
 	}
 }
 

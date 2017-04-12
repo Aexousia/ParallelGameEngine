@@ -36,7 +36,7 @@ bool Game::init() {
 	REGISTER_SYSTEM_TICK_RATE(TestSystem, 20);
 
 	//create entities
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < 500; i++)
 	{
 		circles.push_back(new Circle());
 	}

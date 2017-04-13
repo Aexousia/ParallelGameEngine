@@ -8,7 +8,6 @@ class RenderSystem : public ISystem, public Singleton<RenderSystem>
 public:
 	RenderSystem()
 	{
-
 	}
 
 	void initialize(Size2D screenSize)
@@ -55,7 +54,7 @@ public:
 
 	void drawFilledCircle(GLfloat x, GLfloat y, GLfloat radius) {
 		int i;
-		int triangleAmount = 4; //# of triangles used to draw circle
+		int triangleAmount = 20; //# of triangles used to draw circle
 
 								 //GLfloat radius = 0.8f; //radius
 		GLfloat twicePi = 2.0f * 3.14;

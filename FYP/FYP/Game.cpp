@@ -33,7 +33,7 @@ bool Game::init() {
 
 	//registerSystems
 	REGISTER_SYSTEM(RenderSystem);
-	REGISTER_SYSTEM_TICK_RATE(TestSystem, 20);
+	REGISTER_SYSTEM_TICK_RATE(TestSystem, 30);
 
 	//create entities
 	for (int i = 0; i < 500; i++)

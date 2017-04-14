@@ -162,10 +162,13 @@
   <ItemGroup>
     <ClInclude Include="AutoMapper.h" />
     <ClInclude Include="BasicTypes.h" />
+    <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Circle.h" />
     <ClInclude Include="ECSInterfaces.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
     <ClInclude Include="imgui_impl_sdl_gl3.h" />
@@ -185,6 +188,7 @@
     <ClInclude Include="UISystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="FYP.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="imgui.cpp" />
@@ -202,6 +206,10 @@
     <ClCompile Include="SyncManager.cpp" />
     <ClCompile Include="TaskQueue.cpp" />
     <ClCompile Include="TestSystem.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sphereShader.frag" />
+    <None Include="sphereShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

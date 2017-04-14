@@ -93,16 +93,17 @@ void Game::loop()
 				quit = true;
 			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
 				quit = true;
-			if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_UP)
+			if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_COMMA)
 			{
 				SINGLETON(TaskQueue)->incrementActiveWorkers();
 				std::cout << "Active Workers" << SINGLETON(TaskQueue)->getNumActiveWorkers() << std::endl;
 			}
-			if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_DOWN)
+			if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_PERIOD)
 			{
 				SINGLETON(TaskQueue)->decrementActiveWorkers();
 				std::cout << "Active Workers" << SINGLETON(TaskQueue)->getNumActiveWorkers() << std::endl;
 			}
+			SINGLETON(RenderSystem)->CameraInput(event, deltaTime);
 		}
 
 		update(deltaTime);

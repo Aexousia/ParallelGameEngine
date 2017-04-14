@@ -2,6 +2,10 @@
 #include "Framework.h"
 #include "BasicTypes.h"
 #include "UISystem.h"
+#include "Camera\Camera.h"
+#include <../dependancies/sdl/SDL_opengl.h>
+#include "Sphere.h"
+#include "Shader.h"
 
 class RenderSystem : public ISystem, public Singleton<RenderSystem>
 {
@@ -10,9 +14,77 @@ public:
 	{
 	}
 
+	void CameraInput(SDL_Event evt, float dt)
+	{
+		static std::unordered_map<SDL_Keycode, bool> wasPressed;
+		SDL_Keycode key = evt.key.keysym.sym;
+
+		if (evt.type == SDL_KEYDOWN)
+		{
+			switch (key)
+			{
+			case (SDLK_w):
+				m_camera.Move(FORWARD);
+				break;
+			case (SDLK_a):
+				m_camera.Move(LEFT);
+				break;
+			case (SDLK_s):
+				m_camera.Move(BACK);
+				break;
+			case (SDLK_d):
+				m_camera.Move(RIGHT);
+				break;
+			case (SDLK_q):
+				m_camera.Move(DOWN);
+				break;
+			case (SDLK_e):
+				m_camera.Move(UP);
+				break;
+			case (SDLK_UP):
+				m_camera.ChangePitch(0.08f * dt);
+				break;
+			case (SDLK_DOWN):
+				m_camera.ChangePitch(-0.08f * dt);
+				break;
+			case (SDLK_LEFT):
+				m_camera.ChangeHeading(0.08f * dt);
+				break;
+			case (SDLK_RIGHT):
+				m_camera.ChangeHeading(-0.08f * dt);
+				break;
+			default:
+				break;
+			}
+		}
+
+
+		if (evt.type == SDL_KEYDOWN)
+		{
+			wasPressed[evt.key.keysym.sym] = true;
+		}
+		if (evt.type == SDL_KEYUP)
+		{
+			wasPressed[evt.key.keysym.sym] = false;
+		}
+	}
+
 	void initialize(Size2D screenSize)
 	{
 		m_windowSize = screenSize;
+
+		m_camera.SetMode(CameraType::FREE);
+		m_camera.SetPosition(glm::vec3(642.499, 365, -241));
+		m_camera.SetLookAt(glm::vec3(642.499, 365, 1));
+		m_camera.SetWorldSize(screenSize.w, screenSize.h);
+		m_camera.SetClipping(.1, 1000);
+		m_camera.SetFOV(90);
+		m_camera.SetViewport(0, 0, m_windowSize.w, m_windowSize.h);
+
+		//Use OpenGL 3.1 core
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 		// Setup window
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
@@ -48,6 +120,19 @@ public:
 		//io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 
 		SDL_GL_MakeCurrent(m_window, NULL); //remove context binding of opengl from main thread
+	
+
+
+											// Load shaders, link program for drawing sphere
+		Shader shader;
+		shader.loadFromFile("sphereShader.vert", "sphereShader.frag");
+		GLuint vertexPosition_modelspaceID = shader.getAttribLocation("vertexPosition_modelspace");
+		//int m_sphereProgramID = SDL_GL_LoadShaders("shader/sphereShader.vert", "shader/sphereShader.frag");
+		//GLuint vertexPosition_modelspaceID = glGetAttribLocation(m_sphereProgramID, "vertexPosition_modelspace");
+
+		//// load OpenGL resources needed by the sphere
+		//// pass the vertex position id to it
+		s.init(vertexPosition_modelspaceID);
 	}
 
 	void process(float dt);
@@ -74,4 +159,6 @@ private:
 	SDL_Window * m_window = nullptr;
 	Size2D m_windowSize;
 	SDL_GLContext m_glcontext;
+	Camera m_camera;
+	Sphere s;
 };

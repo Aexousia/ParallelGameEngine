@@ -24,6 +24,9 @@
     <Filter Include="ECS\Components">
       <UniqueIdentifier>{79a8b681-833f-4415-b0ce-2372ab02f8c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{03dfbfd3-b968-4569-8918-cd55efc72894}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -98,6 +101,15 @@
     <ClInclude Include="Circle.h">
       <Filter>ECS\Components</Filter>
     </ClInclude>
+    <ClInclude Include="Camera\Camera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -136,5 +148,16 @@
     <ClCompile Include="TestSystem.cpp">
       <Filter>ECS\Systems</Filter>
     </ClCompile>
+    <ClCompile Include="Camera\Camera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sphereShader.vert">
+      <Filter>ECS\Components</Filter>
+    </None>
+    <None Include="sphereShader.frag">
+      <Filter>ECS\Components</Filter>
+    </None>
   </ItemGroup>
 </Project>

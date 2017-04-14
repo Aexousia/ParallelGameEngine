@@ -27,9 +27,9 @@ struct Circle : public IComponent, public AutoMapper<Circle, TestSystem, RenderS
 	}
 
 	Circle() :
-		position(Point2D(rand() % 800, rand() % 600)),
+		position(Point2D(rand() % 1280, rand() % 720)),
 		radius(rand() % 50 + 20),
-		direction(Point2D(1, 0)),
+		direction(Point2D(0, 1)),
 		SYSTEMS({
 			SYSTEM(RenderSystem),
 			SYSTEM(TestSystem)

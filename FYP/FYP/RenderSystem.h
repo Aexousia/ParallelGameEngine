@@ -119,11 +119,9 @@ public:
 		//io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
 		//io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 
-		SDL_GL_MakeCurrent(m_window, NULL); //remove context binding of opengl from main thread
-	
 
 
-											// Load shaders, link program for drawing sphere
+		// Load shaders, link program for drawing sphere
 		Shader shader;
 		shader.loadFromFile("sphereShader.vert", "sphereShader.frag");
 		GLuint vertexPosition_modelspaceID = shader.getAttribLocation("vertexPosition_modelspace");
@@ -133,6 +131,9 @@ public:
 		//// load OpenGL resources needed by the sphere
 		//// pass the vertex position id to it
 		s.init(vertexPosition_modelspaceID);
+
+
+		SDL_GL_MakeCurrent(m_window, NULL); //remove context binding of opengl from main thread
 	}
 
 	void process(float dt);

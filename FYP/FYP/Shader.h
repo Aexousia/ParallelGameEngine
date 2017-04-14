@@ -20,7 +20,7 @@ public:
 		const GLint size = src.size();
 
 		//Set vertex source
-		glShaderSource(vertexShader, 1, vertexSource, &size);
+		glShaderSource(vertexShader, 1, vertexSource, NULL);
 
 		//Compile vertex source
 		glCompileShader(vertexShader);
@@ -193,16 +193,19 @@ public:
 protected:
 	std::string readFile(const char* filePath)
 	{
-		std::ifstream file(filePath);
-		std::string str;
-		std::string file_contents;
-		while (std::getline(file, str))
-		{
-			file_contents += str;
-			file_contents += '\n';
-		}
+		std::ifstream shaderFile(filePath);
 
-		return file_contents;
+		// find the file size
+		shaderFile.seekg(0, std::ios::end);
+		std::streampos          length = shaderFile.tellg();
+		shaderFile.seekg(0, std::ios::beg);
+
+		// read whole file into a vector:
+		std::vector<char>       buffer(length);
+		shaderFile.read(&buffer[0], length);
+
+		// return the shader string
+		return std::string(buffer.begin(), buffer.end());
 	}
 	GLuint m_programId;
 };

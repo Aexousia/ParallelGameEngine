@@ -4,8 +4,8 @@
 #include "UISystem.h"
 #include "Camera\Camera.h"
 #include <../dependancies/sdl/SDL_opengl.h>
-#include "Sphere.h"
 #include "Shader.h"
+#include "Assets.h"
 
 class RenderSystem : public ISystem, public Singleton<RenderSystem>
 {
@@ -119,19 +119,8 @@ public:
 		//io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
 		//io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
 
-
-
-		// Load shaders, link program for drawing sphere
-		Shader shader;
-		shader.loadFromFile("sphereShader.vert", "sphereShader.frag");
-		GLuint vertexPosition_modelspaceID = shader.getAttribLocation("vertexPosition_modelspace");
-		//int m_sphereProgramID = SDL_GL_LoadShaders("shader/sphereShader.vert", "shader/sphereShader.frag");
-		//GLuint vertexPosition_modelspaceID = glGetAttribLocation(m_sphereProgramID, "vertexPosition_modelspace");
-
-		//// load OpenGL resources needed by the sphere
-		//// pass the vertex position id to it
-		s.init(vertexPosition_modelspaceID);
-
+		AddShadersToLoadQueue();
+		SINGLETON(AssetLoader)->loadAll();
 
 		SDL_GL_MakeCurrent(m_window, NULL); //remove context binding of opengl from main thread
 	}
@@ -161,5 +150,4 @@ private:
 	Size2D m_windowSize;
 	SDL_GLContext m_glcontext;
 	Camera m_camera;
-	Sphere s;
 };

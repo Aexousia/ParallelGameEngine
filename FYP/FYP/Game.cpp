@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sstream>
 #include "RenderSystem.h"
+#include "Assets.h"
 
 using namespace std;
 
@@ -36,10 +37,10 @@ bool Game::init() {
 	REGISTER_SYSTEM_TICK_RATE(TestSystem, 30);
 
 	//create entities
-	for (int i = 0; i < 500; i++)
+	/*for (int i = 0; i < 500; i++)
 	{
 		circles.push_back(new Circle());
-	}
+	}*/
 
 	return true;
 }

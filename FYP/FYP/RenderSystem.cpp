@@ -30,10 +30,6 @@ void RenderSystem::process(float dt)
 		drawFilledCircle(circle->position.x, circle->position.y, circle->radius);
 	}
 
-	//Sphere s;
-	//s.init(0);
-	//s.draw();
-
 	//RenderUI last
 	SINGLETON(UISystem)->Render();
 	SDL_GL_SwapWindow(m_window);

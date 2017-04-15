@@ -1,5 +1,6 @@
 #pragma once
 
+//template base class to enable singleton access of a class
 template<typename T>
 class Singleton
 {

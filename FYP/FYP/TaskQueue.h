@@ -8,15 +8,14 @@
 #include <functional>
 #include <iostream>
 #include "SyncManager.h"
-#include <condition_variable>
 
+// Thread Pool class allowing easy threading of tasks in c++
 class TaskQueue : public Singleton<TaskQueue>
 {
 private:
 	static TaskQueue * m_instance;
 	SDL_mutex* m_queueLock, *m_processedLock, *m_activeWorkersLock;
 	SDL_sem* m_canConsume, *m_workerSlotsFree, *m_idle;
-	std::condition_variable cv_finished;
 	std::deque<std::function<void()>> m_jobs;
 	std::vector<SDL_Thread*> m_workerPool;
 	bool m_waitingUntilIdle;
@@ -71,15 +70,8 @@ static int worker(void* ptr)
 	}
 }
 
-//really awkward but necessary macro stuff to remove trailing comma's
-#define COMMA(...) __VA_ARGS__ ,
-#define NO_COMMA(...) __VA_ARGS__
-#define _GET_OVERRIDE(_1, _2, _3, _4, _5, _6, NAME, ...) NAME
-#define ARGS_OR_NOTHING(...) _GET_OVERRIDE(__VA_ARGS__, \
-    COMMA, COMMA, COMMA, COMMA, COMMA, NO_COMMA)(__VA_ARGS__)
-
-#define TASK_BEGIN(...) SINGLETON(TaskQueue)->addJob(std::bind([__VA_ARGS__]()
-#define TASK_END ));
+#define TASK_BEGIN(...) SINGLETON(TaskQueue)->addJob(std::bind([__VA_ARGS__](){
+#define TASK_END }));
 
 //Helper macros
 #define BATCH_LIST_BEGIN(vector, batchSize, elementName, ...) \
@@ -89,7 +81,7 @@ for (int i = 0, j = batchSize; i < vector.size(); i += batchSize, j += batchSize
 	{																			   \
 		j = vector.size();														   \
 	}																			   \
-	SINGLETON(TaskQueue)->addJob(std::bind([ARGS_OR_NOTHING(__VA_ARGS__) vector](int min, int max) {			   \
+	SINGLETON(TaskQueue)->addJob(std::bind([__VA_ARGS__](int min, int max) {			   \
 		for (int i = min; i < max; i++)											   \
 		{																		   \
 			auto& elementName = vector[i];										   \

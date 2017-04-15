@@ -160,6 +160,8 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AssetLoader.h" />
+    <ClInclude Include="Assets.h" />
     <ClInclude Include="AutoMapper.h" />
     <ClInclude Include="BasicTypes.h" />
     <ClInclude Include="Camera\Camera.h" />
@@ -167,8 +169,10 @@
     <ClInclude Include="ECSInterfaces.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="IOHelperFunctions.h" />
+    <ClInclude Include="MeshAsset.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="ShaderAsset.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
     <ClInclude Include="imgui_impl_sdl_gl3.h" />

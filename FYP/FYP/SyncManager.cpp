@@ -46,7 +46,7 @@ void SyncManager::DistributeChanges()
 
 	//now we must run the synchronization in parallel to remove as much overhead as possible
 	//batches of 50 to make things faster
-	BATCH_LIST_BEGIN(filteredNotifications, 50, notif)
+	BATCH_LIST_BEGIN(filteredNotifications, 50, notif, filteredNotifications)
 	{
 		notif->send();
 	}

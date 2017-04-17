@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="imgui">
       <UniqueIdentifier>{f68ca0a7-23d2-4a8c-86a6-dd33452d8174}</UniqueIdentifier>
     </Filter>
@@ -51,25 +43,48 @@
     <Filter Include="Framework\Helper">
       <UniqueIdentifier>{8697c1b1-e1b9-43f4-9962-bc102a155ded}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets\Mesh">
+      <UniqueIdentifier>{65197964-2ff6-4e33-83a1-bd061d9c887b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shader">
+      <UniqueIdentifier>{c97d790c-97d3-4474-af62-be843d206132}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="zHeader Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="zSource Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{a69338e2-5471-40de-a399-3bd702b39347}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Light">
+      <UniqueIdentifier>{591a7b80-0cda-4af5-82b2-450d63889614}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Material">
+      <UniqueIdentifier>{413f1237-92e6-48e2-8992-5e4c6f52ea05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
+      <Filter>zHeader Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
+      <Filter>zHeader Files</Filter>
     </ClInclude>
     <ClInclude Include="BasicTypes.h">
-      <Filter>Header Files</Filter>
+      <Filter>zHeader Files</Filter>
     </ClInclude>
     <ClInclude Include="Game.h">
-      <Filter>Header Files</Filter>
+      <Filter>zHeader Files</Filter>
     </ClInclude>
     <ClInclude Include="LTimer.h">
-      <Filter>Header Files</Filter>
+      <Filter>zHeader Files</Filter>
     </ClInclude>
     <ClInclude Include="imconfig.h">
       <Filter>imgui</Filter>
@@ -110,9 +125,6 @@
     <ClInclude Include="Camera\Camera.h">
       <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AssetLoader.h">
       <Filter>Framework\AssetLoader</Filter>
     </ClInclude>
@@ -134,31 +146,49 @@
     <ClInclude Include="Assets.h">
       <Filter>Assets</Filter>
     </ClInclude>
-    <ClInclude Include="MeshAsset.h">
-      <Filter>Assets</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderAsset.h">
-      <Filter>Assets</Filter>
-    </ClInclude>
     <ClInclude Include="Singleton.h">
       <Filter>Framework\Helper</Filter>
     </ClInclude>
     <ClInclude Include="IOHelperFunctions.h">
       <Filter>Framework\Helper</Filter>
     </ClInclude>
+    <ClInclude Include="STDHelperFunctions.h">
+      <Filter>Framework\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Assets\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Assets\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderAsset.h">
+      <Filter>Assets\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshAsset.h">
+      <Filter>Assets\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Assets\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Assets\Material</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>zSource Files</Filter>
     </ClCompile>
     <ClCompile Include="FYP.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>zSource Files</Filter>
     </ClCompile>
     <ClCompile Include="Game.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>zSource Files</Filter>
     </ClCompile>
     <ClCompile Include="LTimer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>zSource Files</Filter>
     </ClCompile>
     <ClCompile Include="imgui.cpp">
       <Filter>imgui</Filter>
@@ -187,13 +217,16 @@
     <ClCompile Include="TaskQueue.cpp">
       <Filter>Framework\TaskQueue</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Assets\Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="sphereShader.vert">
-      <Filter>ECS\Components</Filter>
+    <None Include="Assets\shader\phongShader.frag">
+      <Filter>shaders</Filter>
     </None>
-    <None Include="sphereShader.frag">
-      <Filter>ECS\Components</Filter>
+    <None Include="Assets\shader\phongShader.vert">
+      <Filter>shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

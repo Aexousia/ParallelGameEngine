@@ -1,6 +1,4 @@
 #pragma once
-#include "Singleton.h"
-
 
 class Shader
 {
@@ -40,7 +38,17 @@ public:
 		return index;
 	}
 
-	
+	GLint getUniformLocation(const char* name)
+	{
+		GLint index = glGetUniformLocation(m_programId, name);
+		if (index == -1)
+		{
+			std::string error = name;
+			error += " is not a valid glsl program variable!\n";
+			printf(error.c_str());
+		}
+		return index;
+	}
 
 	static void bind(Shader* shader)
 	{

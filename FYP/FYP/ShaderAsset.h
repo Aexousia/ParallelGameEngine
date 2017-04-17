@@ -99,6 +99,7 @@ public:
 		}
 
 		SINGLETON(AssetLoader)->addAssetToMap<Shader>(getKey(), new Shader(programId));
+		return true;
 	}
 
 	static void printProgramLog(GLuint program)

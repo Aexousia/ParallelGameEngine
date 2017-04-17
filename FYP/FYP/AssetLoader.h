@@ -41,6 +41,7 @@ public:
 		if (!asset)
 		{
 			std::cout << "Asset by the name of " << key << " not found in asset map, check type of map being used" << std::endl;
+			asset = getAssetMap<T>()["default"]; // get default asset if available
 		}
 
 		return asset;
@@ -75,8 +76,8 @@ public:
 			}
 			else
 			{
-				delete asset;
 				std::cout << "Error loading asset " << asset->getKey() << std::endl;
+				delete asset;
 			}
 		}
 		m_loadQueue.clear();

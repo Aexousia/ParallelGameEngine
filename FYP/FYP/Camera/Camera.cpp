@@ -22,8 +22,6 @@ void Camera::Reset() {
 	camera_up = glm::vec3(0, 1, 0);
 }
 
-#include <iostream>
-
 void Camera::Update() {
 	camera_direction = glm::normalize(camera_look_at - camera_position);
 	//need to set the matrix state. this is only important because lighting doesn't work if this isn't done

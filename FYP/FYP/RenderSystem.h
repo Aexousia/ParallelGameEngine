@@ -17,19 +17,20 @@ public:
 	void process(float dt);
 
 private:
-
+	//lights
 	void bindLights(Shader* shader);
 
 	void renderLights(glm::mat4& projection, glm::mat4& view, glm::mat4& VP);
 
+	//models
 	void renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP);
 
+	//setup
 	void setUpCamera();
-
 	void setupWindow();
-
 	void initGlew();
 
+	//variables
 	SDL_Window * m_window = nullptr;
 	Size2D m_windowSize;
 	SDL_GLContext m_glcontext;

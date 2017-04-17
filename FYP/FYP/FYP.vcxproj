@@ -170,11 +170,14 @@ copy "..\..\dependancies\dlls\x86\assimp_debug-dll_win32\*.dll" "$(OutDir)";</Co
     <ClInclude Include="ECSInterfaces.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GraphicsChanges.h" />
     <ClInclude Include="IOHelperFunctions.h" />
-    <ClInclude Include="Light.h" />
+    <ClInclude Include="LightComponent.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="MaterialComponent.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshAsset.h" />
+    <ClInclude Include="MeshComponent.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderAsset.h" />
     <ClInclude Include="imconfig.h" />
@@ -183,6 +186,7 @@ copy "..\..\dependancies\dlls\x86\assimp_debug-dll_win32\*.dll" "$(OutDir)";</Co
     <ClInclude Include="imgui_internal.h" />
     <ClInclude Include="LTimer.h" />
     <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="ShaderComponent.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="stb_rect_pack.h" />
     <ClInclude Include="stb_textedit.h" />
@@ -194,7 +198,7 @@ copy "..\..\dependancies\dlls\x86\assimp_debug-dll_win32\*.dll" "$(OutDir)";</Co
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TaskQueue.h" />
     <ClInclude Include="TestSystem.h" />
-    <ClInclude Include="Transform.h" />
+    <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="UISystem.h" />
   </ItemGroup>
   <ItemGroup>

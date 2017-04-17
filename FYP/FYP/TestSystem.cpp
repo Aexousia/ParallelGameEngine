@@ -4,7 +4,7 @@
 
 void TestSystem::process(float dt)
 {
-	auto circles = AutoMap::get<Circle, TestSystem>();
+	auto& circles = AutoMap::getList<Circle, TestSystem>();
 
 	float speed = 50;
 	BATCH_LIST_BEGIN(circles, 20, circle, &, speed, dt)

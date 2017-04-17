@@ -5,7 +5,7 @@
 typedef unsigned int Change;
 class IEntity;
 
-static int newId()
+inline int newId()
 {
 	static int x = 0;
 	return x++;
@@ -43,9 +43,31 @@ public:
 	virtual void process(float dt) = 0;
 };
 
+inline unsigned int uniqueBitId()
+{
+	static unsigned int offset = 0;
+	offset++;
+	return 1 << offset;
+}
+
+template<typename Component>
+struct Groupable
+{
+	static unsigned int bitId;
+};
+template<typename Component>
+unsigned int Groupable<Component>::bitId = uniqueBitId();
+
+struct NULL_COMPONENT : public Groupable<NULL_COMPONENT>
+{};
+
+
 struct IComponent
 {
-	IComponent() : id(newId()) {};
+	IComponent(IEntity* parent) 
+		:	parent(parent)
+		,	id(newId()) 
+	{};
 
 	virtual ~IComponent() {};
 	virtual void ChangeOccured(Change c, IComponent* subject) {};
@@ -55,12 +77,13 @@ struct IComponent
 	}
 	int id;
 	int priority;
+	IEntity* parent;
 };
 
 class IEntity
 {
 public:
-	IEntity(std::vector<IComponent*> list) : m_components(list)
+	IEntity()
 	{
 		alive = true;
 	}
@@ -74,14 +97,22 @@ public:
 		m_components.clear();
 	}
 
+	template<typename Component>
 	void AddComponent(IComponent* component)
 	{
 		m_components.push_back(component);
+
+		//allows easy grouping of components later
+		m_componentBitMask |= Groupable<Component>::bitId;
 	}
 
-
-
+	unsigned int getComponentBitMask()
+	{
+		return m_componentBitMask;
+	}
+	
 	bool alive;
 protected:
 	std::vector<IComponent*> m_components;
+	unsigned int m_componentBitMask;
 };

@@ -5,14 +5,65 @@
 #include <assert.h>
 #include "SyncManager.h"
 #include "STDHelperFunctions.h"
+#include <map>
 
 namespace AutoMap
 {
 	template<typename Component, typename System>
-	std::vector<Component *>& get()
+	std::vector<Component *>& getList()
 	{
 		static std::vector<Component *> instances;
 		return instances;
+	}
+
+	template<typename Component, typename System>
+	std::map<IEntity*, Component *>& getMap()
+	{
+		static std::map<IEntity*, Component *> instances;
+		return instances;
+	}
+
+	//i really love templates
+	template<typename SYSTEM,
+		typename Component1, //minumum of two grouping params
+		typename Component2, //if only searching for 1 component, use getList
+		typename Component3 = NULL_COMPONENT,
+		typename Component4 = NULL_COMPONENT, 
+		typename Component5 = NULL_COMPONENT>
+		std::vector<std::tuple<	Component1*, 
+								Component2*, 
+								Component3*, 
+								Component4*, 
+								Component5*>> getComponentGroups()
+	{
+		std::vector<std::tuple<	Component1*,
+			Component2*,
+			Component3*,
+			Component4*,
+			Component5*>> groupedComponents;
+
+		unsigned int
+		components =	Groupable<Component1>::bitId |
+						Groupable<Component2>::bitId |
+						Groupable<Component3>::bitId |
+						Groupable<Component4>::bitId |
+						Groupable<Component5>::bitId;
+
+		for (auto& kv : AutoMap::getMap<Component1, SYSTEM>())
+		{
+			if (kv.first->getComponentBitMask() & components) //if entity matches
+			{
+				groupedComponents.push_back(std::make_tuple(
+					kv.second, 
+					AutoMap::getMap<Component2, SYSTEM>()[kv.first],
+					AutoMap::getMap<Component3, SYSTEM>()[kv.first],
+					AutoMap::getMap<Component4, SYSTEM>()[kv.first],
+					AutoMap::getMap<Component5, SYSTEM>()[kv.first]
+				));
+			}
+		}
+
+		return groupedComponents;
 	}
 }
 
@@ -39,7 +90,7 @@ template<	typename Component,
 			typename SYSTEM2 = NULL_SYSTEM,  //more systems are optional
 			typename SYSTEM3 = NULL_SYSTEM, 
 			typename SYSTEM4 = NULL_SYSTEM>
-class AutoMapper
+class AutoMapper : Groupable<Component>
 {
 public:
 	AutoMapper(std::unordered_map<ISystem*, int> priorityMap)
@@ -103,28 +154,35 @@ public:
 	}*/
 
 	template<typename System>
-	static void RemoveElement(int elementId, Component* deleted)
+	static void RemoveElement(int elementId, IEntity* elementParent, Component* deleted)
 	{
-		auto& instances = AutoMap::get<Component, System>();
-		std::for_each(instances.begin(), instances.end(), [elementId, deleted](Component*& c)
+		auto& instanceMap = AutoMap::getMap<Component, System>();
+		auto& instances = AutoMap::getList<Component, System>();
+		std::for_each(instances.begin(), instances.end(), [elementId, deleted](auto& c)
 		{ 
 			if (c->id == elementId)
 			{
 				if (c != deleted)
 				{
 					delete c;
+
+					//Ensure outstanding notifications relating to component get deleted
+					SINGLETON(SyncManager)->componentDeleted(c);
 				}
 				
 				c = nullptr;
 			}; 
 		});
+		instanceMap.erase(elementParent);
 		instances.erase(std::remove(instances.begin(), instances.end(), nullptr), instances.end());
 	}
 
 	template<typename System>
 	static void AddElement(Component* element)
 	{
-		auto& instances = AutoMap::get<Component, System>();
+		auto& instances = AutoMap::getList<Component, System>();
+		auto& instanceMap = AutoMap::getMap<Component, System>();
+		instanceMap[element->parent] = element;
 		instances.push_back(element);
 	}
 
@@ -133,6 +191,7 @@ public:
 		static int lastRemoved = 0; // the previously removed element, prevent multiple destructor calls for same object
 		Component* deletedComponent = static_cast<Component *>(this);
 		int elementId = deletedComponent->id; // the id of the object to destroy in all system's copies
+		IEntity* parent = deletedComponent->parent;
 
 		if (elementId == lastRemoved)
 		{
@@ -144,21 +203,21 @@ public:
 		//Cleanup memory related to component
 		SINGLETON(SyncManager)->removeRecipients(elementId);
 
-		RemoveElement<SYSTEM1>(elementId, deletedComponent);
+		RemoveElement<SYSTEM1>(elementId, parent, deletedComponent);
 
 		if (SINGLETON(SYSTEM2))
 		{
-			RemoveElement<SYSTEM2>(elementId, deletedComponent);
+			RemoveElement<SYSTEM2>(elementId, parent, deletedComponent);
 		}
 
 		if (SINGLETON(SYSTEM3))
 		{
-			RemoveElement<SYSTEM3>(elementId, deletedComponent);
+			RemoveElement<SYSTEM3>(elementId, parent, deletedComponent);
 		}
 
 		if (SINGLETON(SYSTEM4))
 		{
-			RemoveElement<SYSTEM4>(elementId, deletedComponent);
+			RemoveElement<SYSTEM4>(elementId, parent, deletedComponent);
 		}
 	}
 };

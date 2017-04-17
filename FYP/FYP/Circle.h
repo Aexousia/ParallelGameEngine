@@ -14,11 +14,12 @@ namespace CircleChanges
 
 struct Circle : public IComponent, public AutoMapper<Circle, TestSystem, RenderSystem>
 {
-	Circle(Point2D pos, float rad) : 
+	Circle(IEntity* parent, Point2D pos, float rad) : 
 		SYSTEMS({
 			SYSTEM(RenderSystem),
 			SYSTEM(TestSystem)
 		}),
+		IComponent(parent),
 		position(pos),
 		radius(rad),
 		direction(1, 0)
@@ -26,7 +27,8 @@ struct Circle : public IComponent, public AutoMapper<Circle, TestSystem, RenderS
 
 	}
 
-	Circle() :
+	Circle(IEntity* parent = nullptr) :
+		IComponent(parent),
 		position(Point2D(rand() % 1280, rand() % 720)),
 		radius(rand() % 50 + 20),
 		direction(Point2D(0, 1)),

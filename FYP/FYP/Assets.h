@@ -2,7 +2,6 @@
 #include "AssetLoader.h"
 #include "MeshAsset.h"
 #include "ShaderAsset.h"
-#include "Light.h"
 #include "Material.h"
 
 inline void AddShadersToLoadQueue()
@@ -44,7 +43,7 @@ inline void AddMeshesToLoadQueue()
 	{//	key, objModelPath
 		{ "sphere", "Assets/mesh/sphere.obj"},
 		{ "cube", "Assets/mesh/cube.obj" },
-		{ "light", "Assets/mesh/cube.obj" } 
+		{ "default", "Assets/mesh/monkey.obj" } 
 	};
 
 	for (auto& args : argLists)

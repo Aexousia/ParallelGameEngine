@@ -6,6 +6,12 @@
 #include <sstream>
 #include "RenderSystem.h"
 #include "Assets.h"
+#include <LightComponent.h>
+#include <MaterialComponent.h>
+#include <MeshComponent.h>
+#include <TransformComponent.h>
+#include <ShaderComponent.h>
+
 
 using namespace std;
 
@@ -36,11 +42,25 @@ bool Game::init() {
 	REGISTER_SYSTEM(RenderSystem);
 	REGISTER_SYSTEM_TICK_RATE(TestSystem, 30);
 
+	IEntity* e = new IEntity();
+
 	//create entities
-	/*for (int i = 0; i < 500; i++)
+	for (int i = 0; i < 500; i++)
 	{
-		circles.push_back(new Circle());
-	}*/
+		e->AddComponent<Circle>(new Circle(e));
+	}
+
+	e->AddComponent<LightComponent>(new LightComponent(
+		glm::vec3(150.f, 150.f, 150.f), //Light Position in eye-coords
+		glm::vec3(0.8f, 0.8f, 0.8f),	//Ambient light intensity
+		glm::vec3(0.5f, 0.5f, 0.5f),	//Diffuse light intensity
+		glm::vec3(1.f, 1.f, 1.f),		//Specular light intensity)
+		e));
+
+	e->AddComponent<MeshComponent>(new MeshComponent(e));
+	e->AddComponent<MaterialComponent>(new MaterialComponent(e));
+	e->AddComponent<ShaderComponent>(new ShaderComponent(e));
+	e->AddComponent<TransformComponent>(new TransformComponent(e, glm::vec3(), glm::vec3(), glm::vec3(200,200,200)));
 
 	return true;
 }
@@ -91,9 +111,13 @@ void Game::loop()
 		{
 			ImGui_ImplSdlGL3_ProcessEvent(&event);
 			if (event.type == SDL_QUIT)
+			{
 				quit = true;
+			}
 			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+			{
 				quit = true;
+			}
 			if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_COMMA)
 			{
 				SINGLETON(TaskQueue)->incrementActiveWorkers();

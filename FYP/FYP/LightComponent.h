@@ -1,17 +1,23 @@
 #pragma once
+#include <Framework.h>
+#include "RenderSystem.h"
 
-struct Light
+struct LightComponent : public IComponent, public AutoMapper<LightComponent, RenderSystem>
 {
 	glm::vec3 Position;	//Light Position in eye-coords
 	glm::vec3 La;		//Ambient light intensity
 	glm::vec3 Ld;		//Diffuse light intensity
 	glm::vec3 Ls;		//Specular light intensity
 
-	Light(glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular)
-		: Position(position)
-		, La(ambient)
-		, Ld(diffuse)
-		, Ls(specular)
+	LightComponent(glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, IEntity* parent)
+		:	Position(position)
+		,	La(ambient)
+		,	Ld(diffuse)
+		,	Ls(specular)
+		,	IComponent(parent)
+		,	SYSTEMS({
+				SYSTEM(RenderSystem)
+			})
 	{
 
 	}

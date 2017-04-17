@@ -60,11 +60,11 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{a69338e2-5471-40de-a399-3bd702b39347}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Assets\Light">
-      <UniqueIdentifier>{591a7b80-0cda-4af5-82b2-450d63889614}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Assets\Material">
       <UniqueIdentifier>{413f1237-92e6-48e2-8992-5e4c6f52ea05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ECS\Components\Graphics">
+      <UniqueIdentifier>{9e52abc4-6952-459d-bfc7-7617d12d96c9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -167,14 +167,26 @@
     <ClInclude Include="MeshAsset.h">
       <Filter>Assets\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="Transform.h">
-      <Filter>ECS\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Assets\Light</Filter>
-    </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Assets\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformComponent.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshComponent.h">
+      <Filter>ECS\Components\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderComponent.h">
+      <Filter>ECS\Components\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialComponent.h">
+      <Filter>ECS\Components\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsChanges.h">
+      <Filter>ECS\Components\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="LightComponent.h">
+      <Filter>ECS\Components\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

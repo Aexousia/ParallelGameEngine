@@ -1,7 +1,11 @@
 #include "stdafx.h"
 #include "RenderSystem.h"
 #include "Circle.h"
-#include "Transform.h"
+#include "TransformComponent.h"
+#include <MeshComponent.h>
+#include <MaterialComponent.h>
+#include <ShaderComponent.h>
+#include <LightComponent.h>
 
 void RenderSystem::CameraInput(SDL_Event evt, float dt)
 {
@@ -79,40 +83,6 @@ void RenderSystem::initialize(Size2D screenSize)
 	SDL_GL_MakeCurrent(m_window, NULL); //remove context binding of opengl from main thread
 }
 
-void RenderSystem::renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
-{
-	//get shader
-	auto shader = SINGLETON(AssetLoader)->findAssetByKey<Shader>("phong");
-	Shader::bind(shader); // bind shader
-	bindLights(shader); // bind lights to shader
-	
-	//get and bind material to shader
-	Material* mat = SINGLETON(AssetLoader)->findAssetByKey<Material>("default");
-	mat->BindToShader(shader, "Material");
-
-	//demo transform
-	Transform t = Transform();
-	t.SetScale(glm::vec3(200, 200, 200));
-	glm::mat4 MVP = t.GetMVP(VP);
-	glm::mat4 Model = t.GetModel();
-	glm::mat4 ModelView = view * Model;
-	glm::mat4 Normal = glm::transpose(glm::inverse(ModelView));
-
-	// set matrices
-	GLuint vars[3] = {
-		shader->getUniformLocation("ModelViewMatrix"),
-		shader->getUniformLocation("NormalMatrix"),
-		shader->getUniformLocation("MVP")
-	};
-
-	glUniformMatrix4fv(vars[0], 1, GL_FALSE, glm::value_ptr(ModelView));
-	glUniformMatrix4fv(vars[1], 1, GL_FALSE, glm::value_ptr(Normal));
-	glUniformMatrix4fv(vars[2], 1, GL_FALSE, glm::value_ptr(MVP));
-
-	//render model
-	SINGLETON(AssetLoader)->findAssetByKey<Mesh>("sphere")->render();
-}
-
 void RenderSystem::setUpCamera()
 {
 	m_camera.SetMode(CameraType::FREE);
@@ -165,7 +135,6 @@ void RenderSystem::initGlew()
 	//io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyClean.ttf", 13.0f);
 	//io.Fonts->AddFontFromFileTTF("../../extra_fonts/ProggyTiny.ttf", 10.0f);
 	//io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-
 }
 
 void RenderSystem::process(float dt)
@@ -202,42 +171,71 @@ void RenderSystem::process(float dt)
 	SDL_GL_MakeCurrent(m_window, NULL);
 }
 
+void RenderSystem::renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
+{
+	auto models = AutoMap::getComponentGroups<RenderSystem,  MeshComponent, 
+															 TransformComponent, 
+															 MaterialComponent, 
+															 ShaderComponent>();
+	for (auto model : models)
+	{
+		MeshComponent* modelMesh;
+		TransformComponent* modelTransform;
+		MaterialComponent* modelMaterial;
+		ShaderComponent* modelShader;
+		NULL_COMPONENT* _;
+		std::tie(modelMesh, modelTransform, modelMaterial, modelShader,_) = model;
+
+		//get shader
+		auto shader = SINGLETON(AssetLoader)->findAssetByKey<Shader>(modelShader->key);
+		Shader::bind(shader); // bind shader
+		bindLights(shader); // bind lights to shader
+
+		//get and bind material to shader
+		Material* mat = SINGLETON(AssetLoader)->findAssetByKey<Material>(modelMaterial->key);
+		mat->BindToShader(shader, "Material");
+
+		//get matrices for model
+		glm::mat4 MVP = modelTransform->GetMVP(VP);
+		glm::mat4 Model = modelTransform->GetModel();
+		glm::mat4 ModelView = view * Model;
+		glm::mat4 Normal = glm::transpose(glm::inverse(ModelView));
+
+		// set matrices
+		GLuint vars[3] = {
+			shader->getUniformLocation("ModelViewMatrix"),
+			shader->getUniformLocation("NormalMatrix"),
+			shader->getUniformLocation("MVP")
+		};
+
+		glUniformMatrix4fv(vars[0], 1, GL_FALSE, glm::value_ptr(ModelView));
+		glUniformMatrix4fv(vars[1], 1, GL_FALSE, glm::value_ptr(Normal));
+		glUniformMatrix4fv(vars[2], 1, GL_FALSE, glm::value_ptr(MVP));
+
+		//render model
+		SINGLETON(AssetLoader)->findAssetByKey<Mesh>(modelMesh->key)->render();
+	}
+}
+
 void RenderSystem::bindLights(Shader* shader)
 {
-	Light l = Light(
-		glm::vec3(150.f, 150.f, 150.f), //Light Position in eye-coords
-		glm::vec3(0.8f, 0.8f, 0.8f), //Ambient light intensity
-		glm::vec3(0.5f, 0.5f, 0.5f), //Diffuse light intensity
-		glm::vec3(1.f, 1.f, 1.f));//Specular light intensity
-
-	std::vector<Light*> lightComponents = 
-	{
-		&l
-	};
+	std::vector<LightComponent*> lightComponents = AutoMap::getList<LightComponent, RenderSystem>();
 
 	for (int i = 0; i < lightComponents.size(); i++)
 	{
 		lightComponents[i]->BindToShader(shader, i, "Light");
 	}
+
 	GLint iLightCount = shader->getUniformLocation("LIGHTCOUNT");
 	glUniform1i(iLightCount, lightComponents.size());
 }
 
 void RenderSystem::renderLights(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
 {
-	Light l = Light(
-		glm::vec3(150.f, 150.f, 150.f), //Light Position in eye-coords
-		glm::vec3(0.8f, 0.8f, 0.8f), //Ambient light intensity
-		glm::vec3(0.5f, 0.5f, 0.5f), //Diffuse light intensity
-		glm::vec3(1.f, 1.f, 1.f));//Specular light intensity
-
-	std::vector<Light*> lightComponents =
-	{
-		&l
-	};
+	std::vector<LightComponent*> lightComponents = AutoMap::getList<LightComponent, RenderSystem>();
 
 	//get shader
-	auto shader = SINGLETON(AssetLoader)->findAssetByKey<Shader>("phong");
+	auto shader = SINGLETON(AssetLoader)->findAssetByKey<Shader>("default");
 	Shader::bind(shader); // bind shader
 	bindLights(shader); // bind lights to shader
 
@@ -252,13 +250,12 @@ void RenderSystem::renderLights(glm::mat4& projection, glm::mat4& view, glm::mat
 		shader->getUniformLocation("MVP")
 	};
 
-	auto lightModel = SINGLETON(AssetLoader)->findAssetByKey<Mesh>("light");
+	auto lightModel = SINGLETON(AssetLoader)->findAssetByKey<Mesh>("cube");
+	TransformComponent t = TransformComponent(nullptr);
 
 	for (auto& light : lightComponents)
 	{
-		//demo transform
-		Transform t = Transform();
-		t.SetPos(glm::vec3(200, 200, 200));
+		t.SetPos(light->Position);
 		glm::mat4 MVP = t.GetMVP(VP);
 		glm::mat4 Model = t.GetModel();
 		glm::mat4 ModelView = view * Model;

@@ -75,7 +75,6 @@ void RenderSystem::initialize(Size2D screenSize)
 
 	AddMeshesToLoadQueue();
 	AddShadersToLoadQueue();
-	CreateMaterials();
 	SINGLETON(AssetLoader)->loadAll();
 
 	std::cout << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
@@ -89,8 +88,8 @@ void RenderSystem::setUpCamera()
 	m_camera.SetPosition(glm::vec3(0, 0, 0));
 	m_camera.SetLookAt(glm::vec3(0, 0, 1));
 	m_camera.SetWorldSize(m_windowSize.w, m_windowSize.h);
-	m_camera.SetClipping(.1, 1000);
-	m_camera.SetFOV(90);
+	m_camera.SetClipping(.1, 5000);
+	m_camera.SetFOV(45);
 	m_camera.SetViewport(0, 0, m_windowSize.w, m_windowSize.h);
 }
 

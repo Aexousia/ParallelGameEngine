@@ -6,12 +6,11 @@
 #include <sstream>
 #include "RenderSystem.h"
 #include "Assets.h"
-#include <LightComponent.h>
-#include <MaterialComponent.h>
-#include <MeshComponent.h>
-#include <TransformComponent.h>
-#include <ShaderComponent.h>
-
+#include <DemoScene1.h>
+#include <DemoScene2.h>
+#include <CollisionSystem.h>
+#include <PhysicsSystem.h>
+#include <InputSystem.h>
 
 using namespace std;
 
@@ -34,33 +33,30 @@ Game::~Game()
 bool Game::init() {
 	srand(time(NULL));
 
+	//load assets into assetLoader
+	CreateMaterials();
+	SINGLETON(AssetLoader)->loadAll();
+
 	//initialize systems
 	SINGLETON(RenderSystem)->initialize(m_screenSize);
 	SINGLETON(TestSystem)->initialize(m_screenSize);
 
 	//registerSystems
 	REGISTER_SYSTEM(RenderSystem);
+	REGISTER_SYSTEM(CollisionSystem);
+	REGISTER_SYSTEM(PhysicsSystem);
 	REGISTER_SYSTEM_TICK_RATE(TestSystem, 30);
 
-	IEntity* e = new IEntity();
+	//create scenes
+	DemoScene1* demo1 = new DemoScene1();
+	DemoScene2* demo2 = new DemoScene2();
 
-	//create entities
-	for (int i = 0; i < 500; i++)
-	{
-		e->AddComponent<Circle>(new Circle(e));
-	}
+	//add scenes
+	SINGLETON(SceneManager)->addScene(demo1);
+	SINGLETON(SceneManager)->addScene(demo2);
 
-	e->AddComponent<LightComponent>(new LightComponent(
-		glm::vec3(150.f, 150.f, 150.f), //Light Position in eye-coords
-		glm::vec3(0.8f, 0.8f, 0.8f),	//Ambient light intensity
-		glm::vec3(0.5f, 0.5f, 0.5f),	//Diffuse light intensity
-		glm::vec3(1.f, 1.f, 1.f),		//Specular light intensity)
-		e));
-
-	e->AddComponent<MeshComponent>(new MeshComponent(e));
-	e->AddComponent<MaterialComponent>(new MaterialComponent(e));
-	e->AddComponent<ShaderComponent>(new ShaderComponent(e));
-	e->AddComponent<TransformComponent>(new TransformComponent(e, glm::vec3(), glm::vec3(), glm::vec3(200,200,200)));
+	//switch to initial scene
+	SINGLETON(SceneManager)->setNextScene("DemoScene1");
 
 	return true;
 }
@@ -109,7 +105,6 @@ void Game::loop()
 
 		while (SDL_PollEvent(&event))
 		{
-			ImGui_ImplSdlGL3_ProcessEvent(&event);
 			if (event.type == SDL_QUIT)
 			{
 				quit = true;
@@ -118,20 +113,13 @@ void Game::loop()
 			{
 				quit = true;
 			}
-			if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_COMMA)
-			{
-				SINGLETON(TaskQueue)->incrementActiveWorkers();
-				std::cout << "Active Workers" << SINGLETON(TaskQueue)->getNumActiveWorkers() << std::endl;
-			}
-			if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_PERIOD)
-			{
-				SINGLETON(TaskQueue)->decrementActiveWorkers();
-				std::cout << "Active Workers" << SINGLETON(TaskQueue)->getNumActiveWorkers() << std::endl;
-			}
+			SINGLETON(InputSystem)->ProcessInput(event);
+			SINGLETON(UISystem)->ProcessInput(event);
 			SINGLETON(RenderSystem)->CameraInput(event, deltaTime);
 		}
 
 		update(deltaTime);
+		SINGLETON(SceneManager)->update();
 
 		int frameTicks = capTimer.getTicks();//time since start of frame
 		if (frameTicks < SCREEN_TICKS_PER_FRAME)

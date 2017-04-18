@@ -66,6 +66,15 @@
     <Filter Include="ECS\Components\Graphics">
       <UniqueIdentifier>{9e52abc4-6952-459d-bfc7-7617d12d96c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Framework\SceneManager">
+      <UniqueIdentifier>{c57f06b5-b46b-47ed-8fb9-21b73da6461a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{aa8e5f70-0842-46ce-8d0a-8e002d08dc38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ECS\Entites">
+      <UniqueIdentifier>{cd9f1392-02de-446c-b1d5-1891cd6c6d79}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -188,6 +197,39 @@
     <ClInclude Include="LightComponent.h">
       <Filter>ECS\Components\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Framework\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoScene1.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>ECS\Entites</Filter>
+    </ClInclude>
+    <ClInclude Include="VelocityComponent.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>ECS\Entites</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoScene2.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="InputSystem.h">
+      <Filter>ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>ECS\Entites</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionComponent.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsSystem.h">
+      <Filter>ECS\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -231,6 +273,12 @@
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Assets\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsSystem.cpp">
+      <Filter>ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionSystem.cpp">
+      <Filter>ECS\Systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

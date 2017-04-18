@@ -1,7 +1,8 @@
 #pragma once
-
 #include <Framework.h>
 #include <RenderSystem.h>
+#include <CollisionSystem.h>
+#include <PhysicsSystem.h>
 #include <../dependancies/glm/glm.hpp>
 #include <../dependancies/glm/gtx/transform.hpp>
 
@@ -13,19 +14,21 @@ namespace TransformChanges
 	static const Change all = position | rotation | scale;
 }
 
-struct TransformComponent : public IComponent, public AutoMapper<TransformComponent, RenderSystem>
+struct TransformComponent : public IComponent, public AutoMapper<TransformComponent, PhysicsSystem, CollisionSystem, RenderSystem>
 {
 public:
 	TransformComponent(IEntity* parent,
 		const glm::vec3& pos = glm::vec3(), 
 		const glm::vec3& rot = glm::vec3(), 
-		const glm::vec3& scale = glm::vec3(1.0f, 1.0f, 1.0f))
+		const float fScale = 1)
 		:	pos(pos)
 		,	rot(rot)
-		,	scale(scale)
+		,	scale(glm::vec3(fScale, fScale, fScale))
 		,	IComponent(parent)
 		,	SYSTEMS({
-				SYSTEM(RenderSystem)
+				SYSTEM_PRIORITY(RenderSystem, Priority::Low),
+				SYSTEM_PRIORITY(CollisionSystem, Priority::VeryHigh),
+				SYSTEM_PRIORITY(PhysicsSystem, Priority::High)
 			})
 	{
 	}
@@ -65,12 +68,12 @@ public:
 	{
 		glm::mat4 M = GetModel();
 
-		return VP * M;//camera.GetViewProjection() * GetModel();
+		return VP * M;
 	}
 
-	inline glm::vec3 GetPos() { return pos; }
-	inline glm::vec3 GetRot() { return rot; }
-	inline glm::vec3 GetScale() { return scale; }
+	inline glm::vec3 GetPos() const { return pos; }
+	inline glm::vec3 GetRot() const { return rot; }
+	inline glm::vec3 GetScale() const { return scale; }
 
 	inline void SetPos(glm::vec3& pos) 
 	{ 

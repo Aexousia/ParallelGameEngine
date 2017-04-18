@@ -179,17 +179,26 @@ copy "..\..\dependancies\dlls\x64\assimp_release-dll_x64\*.dll" "$(OutDir)";</Co
     <ClInclude Include="BasicTypes.h" />
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Circle.h" />
+    <ClInclude Include="CollisionComponent.h" />
+    <ClInclude Include="CollisionSystem.h" />
+    <ClInclude Include="Cube.h" />
+    <ClInclude Include="DemoScene1.h" />
+    <ClInclude Include="DemoScene2.h" />
     <ClInclude Include="ECSInterfaces.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GraphicsChanges.h" />
+    <ClInclude Include="InputSystem.h" />
     <ClInclude Include="IOHelperFunctions.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="LightComponent.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="MaterialComponent.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshAsset.h" />
     <ClInclude Include="MeshComponent.h" />
+    <ClInclude Include="PhysicsSystem.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderAsset.h" />
     <ClInclude Include="imconfig.h" />
@@ -200,6 +209,7 @@ copy "..\..\dependancies\dlls\x64\assimp_release-dll_x64\*.dll" "$(OutDir)";</Co
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ShaderComponent.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="Sphere.h" />
     <ClInclude Include="stb_rect_pack.h" />
     <ClInclude Include="stb_textedit.h" />
     <ClInclude Include="stb_truetype.h" />
@@ -212,9 +222,11 @@ copy "..\..\dependancies\dlls\x64\assimp_release-dll_x64\*.dll" "$(OutDir)";</Co
     <ClInclude Include="TestSystem.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="UISystem.h" />
+    <ClInclude Include="VelocityComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera\Camera.cpp" />
+    <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="FYP.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="imgui.cpp" />
@@ -223,6 +235,7 @@ copy "..\..\dependancies\dlls\x64\assimp_release-dll_x64\*.dll" "$(OutDir)";</Co
     <ClCompile Include="imgui_impl_sdl_gl3.cpp" />
     <ClCompile Include="LTimer.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="PhysicsSystem.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

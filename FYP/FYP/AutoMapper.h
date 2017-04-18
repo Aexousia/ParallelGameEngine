@@ -49,7 +49,8 @@ namespace AutoMap
 						Groupable<Component4>::bitId |
 						Groupable<Component5>::bitId;
 
-		for (auto& kv : AutoMap::getMap<Component1, SYSTEM>())
+		auto& map = AutoMap::getMap<Component1, SYSTEM>();
+		for (auto& kv : map)
 		{
 			if (kv.first->getComponentBitMask() & components) //if entity matches
 			{
@@ -158,7 +159,10 @@ public:
 	{
 		auto& instanceMap = AutoMap::getMap<Component, System>();
 		auto& instances = AutoMap::getList<Component, System>();
-		std::for_each(instances.begin(), instances.end(), [elementId, deleted](auto& c)
+
+		instanceMap.erase(elementParent);
+
+		for (auto& c : instances)
 		{ 
 			if (c->id == elementId)
 			{
@@ -169,29 +173,36 @@ public:
 					//Ensure outstanding notifications relating to component get deleted
 					SINGLETON(SyncManager)->componentDeleted(c);
 				}
-				
 				c = nullptr;
-			}; 
-		});
-		instanceMap.erase(elementParent);
+				break;
+			} 
+		}
 		instances.erase(std::remove(instances.begin(), instances.end(), nullptr), instances.end());
 	}
 
 	template<typename System>
 	static void AddElement(Component* element)
 	{
-		auto& instances = AutoMap::getList<Component, System>();
-		auto& instanceMap = AutoMap::getMap<Component, System>();
-		instanceMap[element->parent] = element;
-		instances.push_back(element);
+		if (element->parent)
+		{
+			auto& instances = AutoMap::getList<Component, System>();
+			auto& instanceMap = AutoMap::getMap<Component, System>();
+			instanceMap[element->parent] = element;
+			instances.push_back(element);
+		}
 	}
 
 	virtual ~AutoMapper()
 	{
-		static int lastRemoved = 0; // the previously removed element, prevent multiple destructor calls for same object
+		static int lastRemoved = -1; // the previously removed element, prevent multiple destructor calls for same object
 		Component* deletedComponent = static_cast<Component *>(this);
 		int elementId = deletedComponent->id; // the id of the object to destroy in all system's copies
 		IEntity* parent = deletedComponent->parent;
+
+		if (!parent)
+		{
+			return;
+		}
 
 		if (elementId == lastRemoved)
 		{
@@ -202,7 +213,6 @@ public:
 
 		//Cleanup memory related to component
 		SINGLETON(SyncManager)->removeRecipients(elementId);
-
 		RemoveElement<SYSTEM1>(elementId, parent, deletedComponent);
 
 		if (SINGLETON(SYSTEM2))

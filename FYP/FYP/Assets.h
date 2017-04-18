@@ -4,6 +4,7 @@
 #include "ShaderAsset.h"
 #include "Material.h"
 
+//called from renderSystem init, openglContext required
 inline void AddShadersToLoadQueue()
 {
 	std::vector<std::vector<const char*>> argLists = 
@@ -37,6 +38,7 @@ inline void CreateMaterials()
 		);
 }
 
+//called from renderSystem init, openglContext required
 inline void AddMeshesToLoadQueue()
 {
 	std::vector<std::vector<const char*>> argLists =

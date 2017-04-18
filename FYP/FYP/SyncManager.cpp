@@ -25,11 +25,14 @@ void SyncManager::componentDeleted(IComponent * c)
 
 void SyncManager::registerChanges(IComponent * self, Change changes)
 {
-	for (auto& component : m_recipientDirectory[self->id])
+	if (m_recipientDirectory.find(self->id) != m_recipientDirectory.end())
 	{
-		if (component != self)
+		for (auto& component : m_recipientDirectory[self->id])
 		{
-			m_notificationQueue[SDL_ThreadID()].push_back(ChangeNotification(changes, component, self));
+			if (component != self)
+			{
+				m_notificationQueue[SDL_ThreadID()].push_back(ChangeNotification(changes, component, self));
+			}
 		}
 	}
 }

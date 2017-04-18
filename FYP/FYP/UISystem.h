@@ -17,6 +17,12 @@ public:
 		ImGui_ImplSdlGL3_NewFrame(window);
 		ImGui::ShowTestWindow();
 	}
+
+	void ProcessInput(SDL_Event& event)
+	{
+		ImGui_ImplSdlGL3_ProcessEvent(&event);
+	}
+
 private:
 
 };

@@ -66,6 +66,8 @@ public:
 
 	void removeRecipients(int componentId);
 
+	void componentDeleted(IComponent* c);
+
 	void registerChanges(IComponent* self, Change changes);
 
 	void DistributeChanges();
@@ -81,4 +83,5 @@ private:
 	std::unordered_map<SDL_threadID, std::vector<ChangeNotification>> m_notificationQueue;
 	std::unordered_map<int, std::vector<IComponent*>> m_recipientDirectory;
 	SDL_mutex* m_notifQueueLock;
+	std::map<IComponent*, bool> m_componentIdDeleted;
 };

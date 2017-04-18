@@ -5,6 +5,12 @@
 #include <iostream>
 #include <sstream>
 #include "RenderSystem.h"
+#include "Assets.h"
+#include <DemoScene1.h>
+#include <DemoScene2.h>
+#include <CollisionSystem.h>
+#include <PhysicsSystem.h>
+#include <InputSystem.h>
 
 using namespace std;
 
@@ -27,19 +33,30 @@ Game::~Game()
 bool Game::init() {
 	srand(time(NULL));
 
+	//load assets into assetLoader
+	CreateMaterials();
+	SINGLETON(AssetLoader)->loadAll();
+
 	//initialize systems
 	SINGLETON(RenderSystem)->initialize(m_screenSize);
 	SINGLETON(TestSystem)->initialize(m_screenSize);
 
 	//registerSystems
 	REGISTER_SYSTEM(RenderSystem);
+	REGISTER_SYSTEM(CollisionSystem);
+	REGISTER_SYSTEM(PhysicsSystem);
 	REGISTER_SYSTEM_TICK_RATE(TestSystem, 30);
 
-	//create entities
-	for (int i = 0; i < 500; i++)
-	{
-		circles.push_back(new Circle());
-	}
+	//create scenes
+	DemoScene1* demo1 = new DemoScene1();
+	DemoScene2* demo2 = new DemoScene2();
+
+	//add scenes
+	SINGLETON(SceneManager)->addScene(demo1);
+	SINGLETON(SceneManager)->addScene(demo2);
+
+	//switch to initial scene
+	SINGLETON(SceneManager)->setNextScene("DemoScene1");
 
 	return true;
 }
@@ -88,24 +105,21 @@ void Game::loop()
 
 		while (SDL_PollEvent(&event))
 		{
-			ImGui_ImplSdlGL3_ProcessEvent(&event);
 			if (event.type == SDL_QUIT)
+			{
 				quit = true;
+			}
 			if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE)
+			{
 				quit = true;
-			if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_UP)
-			{
-				SINGLETON(TaskQueue)->incrementActiveWorkers();
-				std::cout << "Active Workers" << SINGLETON(TaskQueue)->getNumActiveWorkers() << std::endl;
 			}
-			if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_DOWN)
-			{
-				SINGLETON(TaskQueue)->decrementActiveWorkers();
-				std::cout << "Active Workers" << SINGLETON(TaskQueue)->getNumActiveWorkers() << std::endl;
-			}
+			SINGLETON(InputSystem)->ProcessInput(event);
+			SINGLETON(UISystem)->ProcessInput(event);
+			SINGLETON(RenderSystem)->CameraInput(event, deltaTime);
 		}
 
 		update(deltaTime);
+		SINGLETON(SceneManager)->update();
 
 		int frameTicks = capTimer.getTicks();//time since start of frame
 		if (frameTicks < SCREEN_TICKS_PER_FRAME)

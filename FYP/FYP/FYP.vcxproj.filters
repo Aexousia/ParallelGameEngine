@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="imgui">
       <UniqueIdentifier>{f68ca0a7-23d2-4a8c-86a6-dd33452d8174}</UniqueIdentifier>
     </Filter>
@@ -24,25 +16,84 @@
     <Filter Include="ECS\Components">
       <UniqueIdentifier>{79a8b681-833f-4415-b0ce-2372ab02f8c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{03dfbfd3-b968-4569-8918-cd55efc72894}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\AssetLoader">
+      <UniqueIdentifier>{546d80f7-da57-44f4-bc81-4a2d7b791a17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\TaskQueue">
+      <UniqueIdentifier>{f95e58ea-de37-49d2-8866-3a070c009f70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\SyncManager">
+      <UniqueIdentifier>{2c8ae744-f709-477b-95c1-58b1ad326465}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Interfaces">
+      <UniqueIdentifier>{ba167489-acdf-4ecf-9832-7b5291dddd99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\SystemManager">
+      <UniqueIdentifier>{296c9cb8-7315-4735-87f0-f71f974e4984}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\AutoMapper">
+      <UniqueIdentifier>{6dcb5fcc-39bb-4335-b612-df415626985c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{a5902773-04e8-444b-8617-5b7b60cbe1c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Helper">
+      <UniqueIdentifier>{8697c1b1-e1b9-43f4-9962-bc102a155ded}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Mesh">
+      <UniqueIdentifier>{65197964-2ff6-4e33-83a1-bd061d9c887b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shader">
+      <UniqueIdentifier>{c97d790c-97d3-4474-af62-be843d206132}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="zHeader Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="zSource Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{a69338e2-5471-40de-a399-3bd702b39347}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Material">
+      <UniqueIdentifier>{413f1237-92e6-48e2-8992-5e4c6f52ea05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ECS\Components\Graphics">
+      <UniqueIdentifier>{9e52abc4-6952-459d-bfc7-7617d12d96c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\SceneManager">
+      <UniqueIdentifier>{c57f06b5-b46b-47ed-8fb9-21b73da6461a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{aa8e5f70-0842-46ce-8d0a-8e002d08dc38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ECS\Entites">
+      <UniqueIdentifier>{cd9f1392-02de-446c-b1d5-1891cd6c6d79}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
+      <Filter>zHeader Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
+      <Filter>zHeader Files</Filter>
     </ClInclude>
     <ClInclude Include="BasicTypes.h">
-      <Filter>Header Files</Filter>
+      <Filter>zHeader Files</Filter>
     </ClInclude>
     <ClInclude Include="Game.h">
-      <Filter>Header Files</Filter>
+      <Filter>zHeader Files</Filter>
     </ClInclude>
     <ClInclude Include="LTimer.h">
-      <Filter>Header Files</Filter>
+      <Filter>zHeader Files</Filter>
     </ClInclude>
     <ClInclude Include="imconfig.h">
       <Filter>imgui</Filter>
@@ -65,24 +116,6 @@
     <ClInclude Include="imgui_impl_sdl_gl3.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="ECSInterfaces.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="SyncManager.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="Singleton.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="AutoMapper.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="TaskQueue.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
-    <ClInclude Include="SystemManager.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="RenderSystem.h">
       <Filter>ECS\Systems</Filter>
     </ClInclude>
@@ -98,19 +131,118 @@
     <ClInclude Include="Circle.h">
       <Filter>ECS\Components</Filter>
     </ClInclude>
+    <ClInclude Include="Camera\Camera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="AssetLoader.h">
+      <Filter>Framework\AssetLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoMapper.h">
+      <Filter>Framework\AutoMapper</Filter>
+    </ClInclude>
+    <ClInclude Include="ECSInterfaces.h">
+      <Filter>Framework\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SyncManager.h">
+      <Filter>Framework\SyncManager</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskQueue.h">
+      <Filter>Framework\TaskQueue</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemManager.h">
+      <Filter>Framework\SystemManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Assets.h">
+      <Filter>Assets</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>Framework\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="IOHelperFunctions.h">
+      <Filter>Framework\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="STDHelperFunctions.h">
+      <Filter>Framework\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Assets\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Assets\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderAsset.h">
+      <Filter>Assets\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshAsset.h">
+      <Filter>Assets\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Assets\Material</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformComponent.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshComponent.h">
+      <Filter>ECS\Components\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderComponent.h">
+      <Filter>ECS\Components\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialComponent.h">
+      <Filter>ECS\Components\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsChanges.h">
+      <Filter>ECS\Components\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="LightComponent.h">
+      <Filter>ECS\Components\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Framework\SceneManager</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoScene1.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>ECS\Entites</Filter>
+    </ClInclude>
+    <ClInclude Include="VelocityComponent.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>ECS\Entites</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoScene2.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="InputSystem.h">
+      <Filter>ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>ECS\Entites</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionComponent.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>ECS\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsSystem.h">
+      <Filter>ECS\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>zSource Files</Filter>
     </ClCompile>
     <ClCompile Include="FYP.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>zSource Files</Filter>
     </ClCompile>
     <ClCompile Include="Game.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>zSource Files</Filter>
     </ClCompile>
     <ClCompile Include="LTimer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>zSource Files</Filter>
     </ClCompile>
     <ClCompile Include="imgui.cpp">
       <Filter>imgui</Filter>
@@ -124,17 +256,37 @@
     <ClCompile Include="imgui_impl_sdl_gl3.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="TaskQueue.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
-    <ClCompile Include="SyncManager.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="RenderSystem.cpp">
       <Filter>ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="TestSystem.cpp">
       <Filter>ECS\Systems</Filter>
     </ClCompile>
+    <ClCompile Include="Camera\Camera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncManager.cpp">
+      <Filter>Framework\SyncManager</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskQueue.cpp">
+      <Filter>Framework\TaskQueue</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Assets\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsSystem.cpp">
+      <Filter>ECS\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionSystem.cpp">
+      <Filter>ECS\Systems</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\shader\phongShader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="Assets\shader\phongShader.vert">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

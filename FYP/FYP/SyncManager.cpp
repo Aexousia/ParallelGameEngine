@@ -18,13 +18,21 @@ void SyncManager::removeRecipients(int componentId)
 	m_recipientDirectory.erase(componentId);
 }
 
+void SyncManager::componentDeleted(IComponent * c)
+{
+	m_componentIdDeleted[c] = true;
+}
+
 void SyncManager::registerChanges(IComponent * self, Change changes)
 {
-	for (auto& component : m_recipientDirectory[self->id])
+	if (m_recipientDirectory.find(self->id) != m_recipientDirectory.end())
 	{
-		if (component != self)
+		for (auto& component : m_recipientDirectory[self->id])
 		{
-			m_notificationQueue[SDL_ThreadID()].push_back(ChangeNotification(changes, component, self));
+			if (component != self)
+			{
+				m_notificationQueue[SDL_ThreadID()].push_back(ChangeNotification(changes, component, self));
+			}
 		}
 	}
 }
@@ -44,9 +52,12 @@ void SyncManager::DistributeChanges()
 	//remove duplicates and stuff
 	FilterNotifications(notificationQueue, filteredNotifications);
 
+	//clear deleted map
+	m_componentIdDeleted.clear();
+
 	//now we must run the synchronization in parallel to remove as much overhead as possible
 	//batches of 50 to make things faster
-	BATCH_LIST_BEGIN(filteredNotifications, 50, notif)
+	BATCH_LIST_BEGIN(filteredNotifications, 50, notif, filteredNotifications)
 	{
 		notif->send();
 	}
@@ -72,6 +83,11 @@ void SyncManager::FilterNotifications(std::vector<ChangeNotification>& notificat
 	for (auto& newNotif : notifications)
 	{
 		auto& observerNotification = notifsByObserver[newNotif.m_observer];
+
+		if (m_componentIdDeleted.find(newNotif.m_observer) != m_componentIdDeleted.end())
+		{
+			continue;
+		}
 
 		//only one change operation is allowed per observer
 		if (observerNotification)

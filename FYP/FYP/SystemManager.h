@@ -3,6 +3,7 @@
 #include "Singleton.h"
 #include <vector>
 
+//manages the updating of individual systems in the application
 class SystemManager : public Singleton<SystemManager>
 {
 public:

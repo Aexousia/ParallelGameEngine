@@ -5,7 +5,7 @@
 
 void PhysicsSystem::process(float dt)
 {
-	auto bodies = AutoMap::getComponentGroups<PhysicsSystem, VelocityComponent, TransformComponent>();
+	/*auto bodies = AutoMap::getComponentGroups<PhysicsSystem, VelocityComponent, TransformComponent>();
 	for (auto body : bodies)
 	{
 		TransformComponent* bodyTransform;
@@ -14,5 +14,5 @@ void PhysicsSystem::process(float dt)
 		std::tie(bodyVelocity, bodyTransform, _, _, _) = body;
 
 		bodyTransform->SetPos(bodyTransform->GetPos() + bodyVelocity->getVelocity() * dt);
-	}
+	}*/
 }

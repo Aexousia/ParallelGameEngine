@@ -23,6 +23,7 @@ private:
 	void renderLights(glm::mat4& projection, glm::mat4& view, glm::mat4& VP);
 
 	//models
+	void renderSpheres(glm::mat4& projection, glm::mat4& view, glm::mat4& VP);
 	void renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP);
 
 	//setup

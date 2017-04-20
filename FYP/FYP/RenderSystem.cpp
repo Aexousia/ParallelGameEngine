@@ -88,9 +88,55 @@ void RenderSystem::setUpCamera()
 	m_camera.SetPosition(glm::vec3(0, 0, 0));
 	m_camera.SetLookAt(glm::vec3(0, 0, 1));
 	m_camera.SetWorldSize(m_windowSize.w, m_windowSize.h);
-	m_camera.SetClipping(.1, 5000);
+	m_camera.SetClipping(.1, 1000);
 	m_camera.SetFOV(45);
 	m_camera.SetViewport(0, 0, m_windowSize.w, m_windowSize.h);
+}
+
+void RenderSystem::renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
+{
+	auto models = AutoMap::getComponentGroups<RenderSystem, MeshComponent,
+		TransformComponent,
+		MaterialComponent,
+		ShaderComponent>();
+	for (auto model : models)
+	{
+		MeshComponent* modelMesh;
+		TransformComponent* modelTransform;
+		MaterialComponent* modelMaterial;
+		ShaderComponent* modelShader;
+		NULL_COMPONENT* _;
+		std::tie(modelMesh, modelTransform, modelMaterial, modelShader, _) = model;
+
+		//get shader
+		auto shader = SINGLETON(AssetLoader)->findAssetByKey<Shader>(modelShader->key);
+		Shader::bind(shader); // bind shader
+		bindLights(shader); // bind lights to shader
+
+							//get and bind material to shader
+		Material* mat = SINGLETON(AssetLoader)->findAssetByKey<Material>(modelMaterial->key);
+		mat->BindToShader(shader, "Material");
+
+		//get matrices for model
+		glm::mat4 MVP = modelTransform->GetMVP(VP);
+		glm::mat4 Model = modelTransform->GetModel();
+		glm::mat4 ModelView = view * Model;
+		glm::mat4 Normal = glm::transpose(glm::inverse(ModelView));
+
+		// set matrices
+		GLuint vars[3] = {
+			shader->getUniformLocation("ModelViewMatrix"),
+			shader->getUniformLocation("NormalMatrix"),
+			shader->getUniformLocation("MVP")
+		};
+
+		glUniformMatrix4fv(vars[0], 1, GL_FALSE, glm::value_ptr(ModelView));
+		glUniformMatrix4fv(vars[1], 1, GL_FALSE, glm::value_ptr(Normal));
+		glUniformMatrix4fv(vars[2], 1, GL_FALSE, glm::value_ptr(MVP));
+
+		//render model
+		SINGLETON(AssetLoader)->findAssetByKey<Mesh>(modelMesh->key)->render();
+	}
 }
 
 void RenderSystem::setupWindow()
@@ -142,7 +188,7 @@ void RenderSystem::process(float dt)
 	SDL_GL_MakeCurrent(m_window, m_glcontext);
 	SINGLETON(UISystem)->UpdateUI(dt, m_window);
 
-	// Rendering
+	//// Rendering
 	glViewport(0, 0, (int)m_windowSize.w, (int)m_windowSize.h);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0, 0, 0, 1);
@@ -154,65 +200,70 @@ void RenderSystem::process(float dt)
 	glm::mat4 VP = projection * view;	//vp matrix
 
 	renderModels(projection, view, VP);
-	renderLights(projection, view, VP);
+	//renderLights(projection, view, VP);
 
-	/*auto& circles = AutoMap::get<Circle, RenderSystem>();
-	for (auto& circle : circles)
-	{
-		drawFilledCircle(circle->position.x, circle->position.y, circle->radius);
-	}*/
-
-	//RenderUI last
+	////RenderUI last
 	SINGLETON(UISystem)->Render();
 	SDL_GL_SwapWindow(m_window);
 
-	//remove context binding of opengl from this thread
+	////remove context binding of opengl from this thread
 	SDL_GL_MakeCurrent(m_window, NULL);
 }
 
-void RenderSystem::renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
+void RenderSystem::renderSpheres(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
 {
 	auto models = AutoMap::getComponentGroups<RenderSystem,  MeshComponent, 
 															 TransformComponent, 
-															 MaterialComponent, 
-															 ShaderComponent>();
-	for (auto model : models)
+															 MaterialComponent>();
+	if (models.size())
 	{
-		MeshComponent* modelMesh;
-		TransformComponent* modelTransform;
-		MaterialComponent* modelMaterial;
-		ShaderComponent* modelShader;
-		NULL_COMPONENT* _;
-		std::tie(modelMesh, modelTransform, modelMaterial, modelShader,_) = model;
+		Shader* lastShader = nullptr;
+		Material* lastMat = nullptr;
+		std::vector<GLint> vars;
+		std::unordered_map<Mesh*, std::unordered_map<Material*, std::tuple<std::vector<glm::mat4>, std::vector<glm::mat4>, std::vector<glm::mat4>>>> instanceData;
 
-		//get shader
-		auto shader = SINGLETON(AssetLoader)->findAssetByKey<Shader>(modelShader->key);
+
+		for (auto model : models)
+		{
+			MeshComponent* modelMesh;
+			TransformComponent* modelTransform;
+			MaterialComponent* modelMaterial;
+			NULL_COMPONENT* _;
+			std::tie(modelMesh, modelTransform, modelMaterial, _, _) = model;
+
+			//get matrices for model
+			glm::mat4 MVP = modelTransform->GetMVP(VP);
+			glm::mat4 Model = modelTransform->GetModel();
+			glm::mat4 ModelView = view * Model;
+
+			auto material = SINGLETON(AssetLoader)->findAssetByKey<Material>(modelMaterial->key);
+			auto mesh = SINGLETON(AssetLoader)->findAssetByKey<Mesh>(modelMesh->key);
+			glm::mat4 Normal = glm::transpose(glm::inverse(ModelView));
+			std::get<0>(instanceData[mesh][material]).push_back(MVP);
+			std::get<1>(instanceData[mesh][material]).push_back(ModelView);
+			std::get<2>(instanceData[mesh][material]).push_back(Normal);
+		}
+
+		
+		auto shader = SINGLETON(AssetLoader)->findAssetByKey<Shader>("phong");
 		Shader::bind(shader); // bind shader
 		bindLights(shader); // bind lights to shader
+				
+		for (auto& outerKv : instanceData)
+		{
+			auto mesh = outerKv.first;
+			for (auto& kv : outerKv.second)
+			{
+				auto material = kv.first;
 
-		//get and bind material to shader
-		Material* mat = SINGLETON(AssetLoader)->findAssetByKey<Material>(modelMaterial->key);
-		mat->BindToShader(shader, "Material");
-
-		//get matrices for model
-		glm::mat4 MVP = modelTransform->GetMVP(VP);
-		glm::mat4 Model = modelTransform->GetModel();
-		glm::mat4 ModelView = view * Model;
-		glm::mat4 Normal = glm::transpose(glm::inverse(ModelView));
-
-		// set matrices
-		GLuint vars[3] = {
-			shader->getUniformLocation("ModelViewMatrix"),
-			shader->getUniformLocation("NormalMatrix"),
-			shader->getUniformLocation("MVP")
-		};
-
-		glUniformMatrix4fv(vars[0], 1, GL_FALSE, glm::value_ptr(ModelView));
-		glUniformMatrix4fv(vars[1], 1, GL_FALSE, glm::value_ptr(Normal));
-		glUniformMatrix4fv(vars[2], 1, GL_FALSE, glm::value_ptr(MVP));
-
-		//render model
-		SINGLETON(AssetLoader)->findAssetByKey<Mesh>(modelMesh->key)->render();
+				material->BindToShader(shader, "Material");
+				auto& meshEntries = mesh->getMeshEntries();
+				for (auto& me : meshEntries)
+				{
+					me->renderInstanced(std::get<0>(kv.second), std::get<1>(kv.second), std::get<2>(kv.second));
+				}
+			}
+		}
 	}
 }
 
@@ -231,42 +282,42 @@ void RenderSystem::bindLights(Shader* shader)
 
 void RenderSystem::renderLights(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
 {
-	std::vector<LightComponent*> lightComponents = AutoMap::getList<LightComponent, RenderSystem>();
+	//std::vector<LightComponent*> lightComponents = AutoMap::getList<LightComponent, RenderSystem>();
 
-	//get shader
-	auto shader = SINGLETON(AssetLoader)->findAssetByKey<Shader>("default");
-	Shader::bind(shader); // bind shader
-	bindLights(shader); // bind lights to shader
+	////get shader
+	//auto shader = SINGLETON(AssetLoader)->findAssetByKey<Shader>("default");
+	//Shader::bind(shader); // bind shader
+	//bindLights(shader); // bind lights to shader
 
-	//get and bind material to shader
-	Material* mat = SINGLETON(AssetLoader)->findAssetByKey<Material>("light");
-	mat->BindToShader(shader, "Material");
+	////get and bind material to shader
+	//Material* mat = SINGLETON(AssetLoader)->findAssetByKey<Material>("light");
+	//mat->BindToShader(shader, "Material");
 
-	// get uniform locations
-	GLuint vars[3] = {
-		shader->getUniformLocation("ModelViewMatrix"),
-		shader->getUniformLocation("NormalMatrix"),
-		shader->getUniformLocation("MVP")
-	};
+	//// get uniform locations
+	//GLuint vars[3] = {
+	//	shader->getUniformLocation("ModelViewMatrix"),
+	//	shader->getUniformLocation("NormalMatrix"),
+	//	shader->getUniformLocation("MVP")
+	//};
 
-	auto lightModel = SINGLETON(AssetLoader)->findAssetByKey<Mesh>("cube");
-	TransformComponent t = TransformComponent(nullptr);
+	//auto lightModel = SINGLETON(AssetLoader)->findAssetByKey<Mesh>("cube");
+	//TransformComponent t = TransformComponent(nullptr);
 
-	for (auto& light : lightComponents)
-	{
-		t.SetPos(light->Position);
-		glm::mat4 MVP = t.GetMVP(VP);
-		glm::mat4 Model = t.GetModel();
-		glm::mat4 ModelView = view * Model;
-		glm::mat4 Normal = glm::transpose(glm::inverse(ModelView));
+	//for (auto& light : lightComponents)
+	//{
+	//	t.SetPos(light->Position);
+	//	glm::mat4 MVP = t.GetMVP(VP);
+	//	glm::mat4 Model = t.GetModel();
+	//	glm::mat4 ModelView = view * Model;
+	//	glm::mat4 Normal = glm::transpose(glm::inverse(ModelView));
 
-		glUniformMatrix4fv(vars[0], 1, GL_FALSE, glm::value_ptr(ModelView));
-		glUniformMatrix4fv(vars[1], 1, GL_FALSE, glm::value_ptr(Normal));
-		glUniformMatrix4fv(vars[2], 1, GL_FALSE, glm::value_ptr(MVP));
+	//	glUniformMatrix4fv(vars[0], 1, GL_FALSE, glm::value_ptr(ModelView));
+	//	glUniformMatrix4fv(vars[1], 1, GL_FALSE, glm::value_ptr(Normal));
+	//	glUniformMatrix4fv(vars[2], 1, GL_FALSE, glm::value_ptr(MVP));
 
-		//render model
-		lightModel->render();
-	}
+	//	//render model
+	//	lightModel->render();
+	//}
 
-	Shader::unbind();
+	//Shader::unbind();
 }

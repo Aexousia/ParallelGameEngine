@@ -36,6 +36,30 @@ inline void CreateMaterials()
 			glm::vec3(1.f, 1.f, 1.f), //Specular reflectivity
 			1.f)					  //Specular shininess factor
 		);
+
+	SINGLETON(AssetLoader)->addAssetToMap<Material>("red",
+		new Material(
+			glm::vec3(1.f, 0, 0), //Ambient reflectivity
+			glm::vec3(0.8f, 0.8f, 0.8f), //Diffuse reflectivity
+			glm::vec3(0.8f, 0.8f, 0.8f), //Specular reflectivity
+			1.f)					  //Specular shininess factor
+		);
+
+	SINGLETON(AssetLoader)->addAssetToMap<Material>("blue",
+		new Material(
+			glm::vec3(0, 1.f, 0), //Ambient reflectivity
+			glm::vec3(0.8f, 0.8f, 0.8f), //Diffuse reflectivity
+			glm::vec3(0.8f, 0.8f, 0.8f), //Specular reflectivity
+			1.f)					  //Specular shininess factor
+		);
+
+	SINGLETON(AssetLoader)->addAssetToMap<Material>("green",
+		new Material(
+			glm::vec3(0, 0, 1.f), //Ambient reflectivity
+			glm::vec3(0.8f, 0.8f, 0.8f), //Diffuse reflectivity
+			glm::vec3(0.8f, 0.8f, 0.8f), //Specular reflectivity
+			1.f)					  //Specular shininess factor
+		);
 }
 
 //called from renderSystem init, openglContext required

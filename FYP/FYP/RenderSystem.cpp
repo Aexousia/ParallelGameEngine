@@ -199,7 +199,7 @@ void RenderSystem::process(float dt)
 	m_camera.GetMatricies(projection, view, model);
 	glm::mat4 VP = projection * view;	//vp matrix
 
-	renderModels(projection, view, VP);
+	renderSpheres(projection, view, VP);
 	//renderLights(projection, view, VP);
 
 	////RenderUI last

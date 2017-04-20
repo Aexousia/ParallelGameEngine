@@ -13,7 +13,7 @@ struct MeshEntry {
 		VERTEX_BUFFER, TEXCOORD_BUFFER, NORMAL_BUFFER, INDEX_BUFFER, MVP_MAT_VB, MODELVIEW_MAT_VB, NORMAL_MAT_VB
 	};
 	GLuint vao;
-	GLuint vbo[4];
+	GLuint vbo[7];
 
 	unsigned int elementCount;
 

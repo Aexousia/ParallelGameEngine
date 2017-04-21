@@ -58,15 +58,16 @@ static int worker(void* ptr)
 		SDL_SemWait(workerSlotFree);
 		SDL_SemWait(canConsume);
 		auto& job = taskQueue->consumeJob();
-		try
-		{
+		/*try
+		{*/
 			job();
 			taskQueue->jobDone();
-		}
+		/*}
 		catch (...)
 		{
 			std::cout << "EARLY RETURN" << " worker: " << id << std::endl;
-		}
+			taskQueue->jobDone();
+		}*/
 	}
 }
 

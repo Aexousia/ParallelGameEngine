@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_map>
+#include <../dependancies/glm/vec3.hpp>
 
 //helper function
 template <typename Key, typename Value>
@@ -10,4 +11,24 @@ Value& get_or(std::unordered_map<Key, Value>& m, const Key& key, Value& default_
 		return default_value;
 	}
 	return it->second;
+}
+
+#define PI 3.14159265359
+
+inline static float RandomFloat(float a, float b) {
+	float random = ((float)rand()) / (float)RAND_MAX;
+	float diff = b - a;
+	float r = random * diff;
+	return a + r;
+}
+
+inline static glm::vec3 randomUnitVector() {
+	float phi = RandomFloat(0, 2 * PI);
+	float costheta = RandomFloat(-1, 1);
+
+	float theta = std::acos(costheta);
+	float x = std::sin(theta) * std::cos(phi);
+	float y = std::sin(theta) * std::sin(phi);
+	float z = std::cos(theta);
+	return glm::vec3(x, y, z);
 }

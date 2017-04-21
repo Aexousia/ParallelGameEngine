@@ -3,6 +3,9 @@
 layout (location = 0) in vec3 VertexPosition;
 layout (location = 1) in vec2 VertexTex;
 layout (location = 2) in vec3 VertexNormal;
+layout (location = 3) in mat4 MVP;                                                  
+layout (location = 7) in mat4 ModelViewMatrix; 
+layout (location = 11) in mat4 NormalMatrix;
  
 out Data
 {
@@ -10,10 +13,7 @@ out Data
 	vec3 Normal;
 	vec2 TexCoord;
 } data;
- 
-uniform mat4 ModelViewMatrix;
-uniform mat4 NormalMatrix;
-uniform mat4 MVP;
+
  
 void main()
 {

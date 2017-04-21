@@ -45,7 +45,6 @@ bool Game::init() {
 	REGISTER_SYSTEM(RenderSystem);
 	REGISTER_SYSTEM(CollisionSystem);
 	REGISTER_SYSTEM(PhysicsSystem);
-	REGISTER_SYSTEM_TICK_RATE(TestSystem, 30);
 
 	//create scenes
 	DemoScene1* demo1 = new DemoScene1();

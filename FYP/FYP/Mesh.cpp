@@ -1,18 +1,28 @@
-//http://www.nexcius.net/2014/04/13/loading-meshes-using-assimp-in-opengl/
+//http://www.nexcius.net/2014/04/13/loading-meshes-using-assimp-in-opengl/ instanced rendering is mine though
 #include "stdafx.h"
 #include "Mesh.h"
 #include <../dependancies/assimp/Importer.hpp>
 #include <../dependancies/assimp/postprocess.h>
 
+#define POSITION_LOCATION 0
+#define TEX_COORD_LOCATION 1
+#define NORMAL_LOCATION 2
+
+#define MVP_LOCATION 3
+#define MODEL_VIEW_LOCATION 7
+#define NORMAL_MATRIX_LOCATION 11
 
 /**
 *	Constructor, loading the specified aiMesh
 **/
-Mesh::MeshEntry::MeshEntry(aiMesh *mesh) {
+MeshEntry::MeshEntry(aiMesh *mesh) {
 	vbo[VERTEX_BUFFER] = NULL;
 	vbo[TEXCOORD_BUFFER] = NULL;
 	vbo[NORMAL_BUFFER] = NULL;
 	vbo[INDEX_BUFFER] = NULL;
+	vbo[MODELVIEW_MAT_VB] = NULL;
+	vbo[MVP_MAT_VB] = NULL;
+	vbo[NORMAL_MAT_VB] = NULL;
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -33,11 +43,10 @@ Mesh::MeshEntry::MeshEntry(aiMesh *mesh) {
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 		glEnableVertexAttribArray(0);
-
+		glVertexAttribDivisor(0, 0);
 		delete vertices;
 	}
-
-
+	
 	if (mesh->HasTextureCoords(0)) {
 		float *texCoords = new float[mesh->mNumVertices * 2];
 		for (int i = 0; i < mesh->mNumVertices; ++i) {
@@ -51,11 +60,10 @@ Mesh::MeshEntry::MeshEntry(aiMesh *mesh) {
 
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 		glEnableVertexAttribArray(1);
-
+		glVertexAttribDivisor(1, 0);
 		delete texCoords;
 	}
-
-
+	
 	if (mesh->HasNormals()) {
 		float *normals = new float[mesh->mNumVertices * 3];
 		for (int i = 0; i < mesh->mNumVertices; ++i) {
@@ -70,11 +78,10 @@ Mesh::MeshEntry::MeshEntry(aiMesh *mesh) {
 
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 		glEnableVertexAttribArray(2);
-
+		glVertexAttribDivisor(2, 0);
 		delete normals;
 	}
-
-
+	
 	if (mesh->HasFaces()) {
 		unsigned int *indices = new unsigned int[mesh->mNumFaces * 3];
 		for (int i = 0; i < mesh->mNumFaces; ++i) {
@@ -87,21 +94,42 @@ Mesh::MeshEntry::MeshEntry(aiMesh *mesh) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[INDEX_BUFFER]);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * mesh->mNumFaces * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray(3);
-
 		delete indices;
 	}
 
+	glGenBuffers(1, &vbo[MVP_MAT_VB]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[MVP_MAT_VB]);
+	for (unsigned int i = 0; i < 4; i++) {
+		glVertexAttribPointer(MVP_LOCATION + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));
+		glEnableVertexAttribArray(MVP_LOCATION + i);
+		glVertexAttribDivisor(MVP_LOCATION + i, 1);
+	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glGenBuffers(1, &vbo[MODELVIEW_MAT_VB]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[MODELVIEW_MAT_VB]);
+	for (unsigned int i = 0; i < 4; i++) {
+		glVertexAttribPointer(MODEL_VIEW_LOCATION + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));
+		glEnableVertexAttribArray(MODEL_VIEW_LOCATION + i);
+		glVertexAttribDivisor(MODEL_VIEW_LOCATION + i, 1);
+	}
+
+	glGenBuffers(1, &vbo[NORMAL_MAT_VB]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[NORMAL_MAT_VB]);
+	for (unsigned int i = 0; i < 4; i++) {
+		glVertexAttribPointer(NORMAL_MATRIX_LOCATION + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));
+		glEnableVertexAttribArray(NORMAL_MATRIX_LOCATION + i);
+		glVertexAttribDivisor(NORMAL_MATRIX_LOCATION + i, 1);
+	}
+
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 /**
 *	Deletes the allocated OpenGL buffers
 **/
-Mesh::MeshEntry::~MeshEntry() {
+MeshEntry::~MeshEntry() {
 	if (vbo[VERTEX_BUFFER]) {
 		glDeleteBuffers(1, &vbo[VERTEX_BUFFER]);
 	}
@@ -124,16 +152,37 @@ Mesh::MeshEntry::~MeshEntry() {
 /**
 *	Renders this MeshEntry
 **/
-void Mesh::MeshEntry::render() {
+void MeshEntry::render() {
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, NULL);
 	glBindVertexArray(0);
+}
+#include <iostream>
+
+void MeshEntry::renderInstanced(std::vector<glm::mat4>& mvps, std::vector<glm::mat4>& modelViews, std::vector<glm::mat4>& normalMats)
+{
+	glBindVertexArray(vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[MVP_MAT_VB]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * mvps.size(), mvps.data(), GL_DYNAMIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[MODELVIEW_MAT_VB]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * modelViews.size(), modelViews.data(), GL_DYNAMIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[NORMAL_MAT_VB]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * normalMats.size(), normalMats.data(), GL_DYNAMIC_DRAW);
+
+	glDrawElementsInstanced(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, NULL, mvps.size());
+
+	//// Make sure the VAO is not changed from the outside 
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 /**
 *	Mesh constructor, loads the specified filename if supported by Assimp
 **/
-Mesh::Mesh(const char *filename)
+Mesh::Mesh(const char *filename) 
 {
 	Assimp::Importer importer;
 	const aiScene *scene = importer.ReadFile(filename, NULL);
@@ -142,7 +191,7 @@ Mesh::Mesh(const char *filename)
 	}
 
 	for (int i = 0; i < scene->mNumMeshes; ++i) {
-		meshEntries.push_back(new Mesh::MeshEntry(scene->mMeshes[i]));
+		meshEntries.push_back(new MeshEntry(scene->mMeshes[i]));
 	}
 }
 
@@ -164,4 +213,8 @@ void Mesh::render() {
 	for (int i = 0; i < meshEntries.size(); ++i) {
 		meshEntries.at(i)->render();
 	}
+}
+
+std::vector<MeshEntry*>& Mesh::getMeshEntries() {
+	return meshEntries;
 }

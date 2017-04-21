@@ -24,6 +24,8 @@ private:
 
 	//models
 	void renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP);
+	void renderModelsInstanced(glm::mat4& projection, glm::mat4& view, glm::mat4& VP);
+	//renderModelsInstanced
 
 	//setup
 	void setUpCamera();

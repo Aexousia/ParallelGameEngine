@@ -80,4 +80,5 @@ void main()
 	vec4 color = vec4( ambientSum + diffuseSum, 1 );
  
 	FragColor = color + vec4( specSum, 1 );
+	//FragColor = vec4(1,0,0,1);
 }

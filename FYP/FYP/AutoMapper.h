@@ -98,44 +98,49 @@ public:
 	{
 		std::vector<IComponent*> copies;
 		Component* c = static_cast<Component *>(this);
-		Component* original = c;
 
-		auto system = SINGLETON(SYSTEM1);
-		assert(system);
-		AddElement<SYSTEM1>(c);
-		c->priority = get_or<ISystem*>(priorityMap, system, Priority::Normal);
-		copies.push_back(c);
-
-		auto system2 = SINGLETON(SYSTEM2);
-		if (system2)
+		if (c->parent)
 		{
-			c = new Component(*c);
-			c->priority = get_or<ISystem*>(priorityMap, system2, Priority::Normal);
-			AddElement<SYSTEM2>(c);
-			copies.push_back(c);
-		}
+			Component* original = c;
 
-		auto system3 = SINGLETON(SYSTEM3);
-		if (system3)
-		{
-			c = new Component(*c);
-			c->priority = get_or<ISystem*>(priorityMap, system3, Priority::Normal);
-			AddElement<SYSTEM3>(c);
+			auto system = SINGLETON(SYSTEM1);
+			assert(system);
+			AddElement<SYSTEM1>(c);
+			c->priority = get_or<ISystem*>(priorityMap, system, Priority::Normal);
 			copies.push_back(c);
-		}
 
-		auto system4 = SINGLETON(SYSTEM4);
-		if (system4)
-		{
-			c = new Component(*c);
-			c->priority = get_or<ISystem*>(priorityMap, system4, Priority::Normal);
-			AddElement<SYSTEM4>(c);
-			copies.push_back(c);
-		}
+			auto system2 = SINGLETON(SYSTEM2);
+			if (system2)
+			{
+				c = new Component(*c);
+				c->priority = get_or<ISystem*>(priorityMap, system2, Priority::Normal);
+				AddElement<SYSTEM2>(c);
+				copies.push_back(c);
+			}
 
-		//Sync manager needs to know who to distribute changes to
-		SINGLETON(SyncManager)->addRecipients(copies, c->id);
-		SINGLETON(SyncManager)->registerChanges(original, static_cast<Change>(-1));//constructor gets called first, so distribution must be run on all changes
+			auto system3 = SINGLETON(SYSTEM3);
+			if (system3)
+			{
+				c = new Component(*c);
+				c->priority = get_or<ISystem*>(priorityMap, system3, Priority::Normal);
+				AddElement<SYSTEM3>(c);
+				copies.push_back(c);
+			}
+
+			auto system4 = SINGLETON(SYSTEM4);
+			if (system4)
+			{
+				c = new Component(*c);
+				c->priority = get_or<ISystem*>(priorityMap, system4, Priority::Normal);
+				AddElement<SYSTEM4>(c);
+				copies.push_back(c);
+			}
+
+
+			//Sync manager needs to know who to distribute changes to
+			SINGLETON(SyncManager)->addRecipients(copies, c->id);
+			SINGLETON(SyncManager)->registerChanges(original, static_cast<Change>(-1));//constructor gets called first, so distribution must be run on all changes
+		}
 	}
 
 	/*AutoMapper(const AutoMapper& rhs)

@@ -46,8 +46,7 @@ MeshEntry::MeshEntry(aiMesh *mesh) {
 		glVertexAttribDivisor(0, 0);
 		delete vertices;
 	}
-
-
+	
 	if (mesh->HasTextureCoords(0)) {
 		float *texCoords = new float[mesh->mNumVertices * 2];
 		for (int i = 0; i < mesh->mNumVertices; ++i) {
@@ -64,8 +63,7 @@ MeshEntry::MeshEntry(aiMesh *mesh) {
 		glVertexAttribDivisor(1, 0);
 		delete texCoords;
 	}
-
-
+	
 	if (mesh->HasNormals()) {
 		float *normals = new float[mesh->mNumVertices * 3];
 		for (int i = 0; i < mesh->mNumVertices; ++i) {
@@ -83,8 +81,7 @@ MeshEntry::MeshEntry(aiMesh *mesh) {
 		glVertexAttribDivisor(2, 0);
 		delete normals;
 	}
-
-
+	
 	if (mesh->HasFaces()) {
 		unsigned int *indices = new unsigned int[mesh->mNumFaces * 3];
 		for (int i = 0; i < mesh->mNumFaces; ++i) {
@@ -100,32 +97,33 @@ MeshEntry::MeshEntry(aiMesh *mesh) {
 		delete indices;
 	}
 
-	glGenBuffers(1, &vbo[MVP_LOCATION]);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[MVP_LOCATION]);
+	glGenBuffers(1, &vbo[MVP_MAT_VB]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[MVP_MAT_VB]);
 	for (unsigned int i = 0; i < 4; i++) {
-		glEnableVertexAttribArray(MVP_LOCATION + i);
 		glVertexAttribPointer(MVP_LOCATION + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));
+		glEnableVertexAttribArray(MVP_LOCATION + i);
 		glVertexAttribDivisor(MVP_LOCATION + i, 1);
 	}
 
 	glGenBuffers(1, &vbo[MODELVIEW_MAT_VB]);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[MODEL_VIEW_LOCATION]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[MODELVIEW_MAT_VB]);
 	for (unsigned int i = 0; i < 4; i++) {
-		glEnableVertexAttribArray(MODEL_VIEW_LOCATION + i);
 		glVertexAttribPointer(MODEL_VIEW_LOCATION + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));
+		glEnableVertexAttribArray(MODEL_VIEW_LOCATION + i);
 		glVertexAttribDivisor(MODEL_VIEW_LOCATION + i, 1);
 	}
 
 	glGenBuffers(1, &vbo[NORMAL_MAT_VB]);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[NORMAL_MATRIX_LOCATION]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[NORMAL_MAT_VB]);
 	for (unsigned int i = 0; i < 4; i++) {
-		glEnableVertexAttribArray(NORMAL_MATRIX_LOCATION + i);
 		glVertexAttribPointer(NORMAL_MATRIX_LOCATION + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (const GLvoid*)(sizeof(GLfloat) * i * 4));
+		glEnableVertexAttribArray(NORMAL_MATRIX_LOCATION + i);
 		glVertexAttribDivisor(NORMAL_MATRIX_LOCATION + i, 1);
 	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 /**
@@ -161,23 +159,24 @@ void MeshEntry::render() {
 }
 #include <iostream>
 
-void MeshEntry::renderInstanced(std::vector<glm::mat4> mvps, std::vector<glm::mat4> modelViews, std::vector<glm::mat4> normalMats)
+void MeshEntry::renderInstanced(std::vector<glm::mat4>& mvps, std::vector<glm::mat4>& modelViews, std::vector<glm::mat4>& normalMats)
 {
 	glBindVertexArray(vao);
-	
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[MVP_MAT_VB]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * mvps.size(), mvps.data(), GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[MODELVIEW_MAT_VB]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * mvps.size(), modelViews.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * modelViews.size(), modelViews.data(), GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[NORMAL_MAT_VB]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * mvps.size(), normalMats.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * normalMats.size(), normalMats.data(), GL_DYNAMIC_DRAW);
 
-	glDrawElementsInstanced(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, 0, mvps.size());
+	glDrawElementsInstanced(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, NULL, mvps.size());
 
-	//// Make sure the VAO is not changed from the outside    
+	//// Make sure the VAO is not changed from the outside 
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 /**

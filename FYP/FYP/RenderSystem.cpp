@@ -93,52 +93,6 @@ void RenderSystem::setUpCamera()
 	m_camera.SetViewport(0, 0, m_windowSize.w, m_windowSize.h);
 }
 
-void RenderSystem::renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
-{
-	auto models = AutoMap::getComponentGroups<RenderSystem, MeshComponent,
-		TransformComponent,
-		MaterialComponent,
-		ShaderComponent>();
-	for (auto model : models)
-	{
-		MeshComponent* modelMesh;
-		TransformComponent* modelTransform;
-		MaterialComponent* modelMaterial;
-		ShaderComponent* modelShader;
-		NULL_COMPONENT* _;
-		std::tie(modelMesh, modelTransform, modelMaterial, modelShader, _) = model;
-
-		//get shader
-		auto shader = SINGLETON(AssetLoader)->findAssetByKey<Shader>(modelShader->key);
-		Shader::bind(shader); // bind shader
-		bindLights(shader); // bind lights to shader
-
-							//get and bind material to shader
-		Material* mat = SINGLETON(AssetLoader)->findAssetByKey<Material>(modelMaterial->key);
-		mat->BindToShader(shader, "Material");
-
-		//get matrices for model
-		glm::mat4 MVP = modelTransform->GetMVP(VP);
-		glm::mat4 Model = modelTransform->GetModel();
-		glm::mat4 ModelView = view * Model;
-		glm::mat4 Normal = glm::transpose(glm::inverse(ModelView));
-
-		// set matrices
-		GLuint vars[3] = {
-			shader->getUniformLocation("ModelViewMatrix"),
-			shader->getUniformLocation("NormalMatrix"),
-			shader->getUniformLocation("MVP")
-		};
-
-		glUniformMatrix4fv(vars[0], 1, GL_FALSE, glm::value_ptr(ModelView));
-		glUniformMatrix4fv(vars[1], 1, GL_FALSE, glm::value_ptr(Normal));
-		glUniformMatrix4fv(vars[2], 1, GL_FALSE, glm::value_ptr(MVP));
-
-		//render model
-		SINGLETON(AssetLoader)->findAssetByKey<Mesh>(modelMesh->key)->render();
-	}
-}
-
 void RenderSystem::setupWindow()
 {
 	// Setup window
@@ -199,7 +153,7 @@ void RenderSystem::process(float dt)
 	m_camera.GetMatricies(projection, view, model);
 	glm::mat4 VP = projection * view;	//vp matrix
 
-	renderSpheres(projection, view, VP);
+	renderModels(projection, view, VP);
 	//renderLights(projection, view, VP);
 
 	////RenderUI last
@@ -210,7 +164,7 @@ void RenderSystem::process(float dt)
 	SDL_GL_MakeCurrent(m_window, NULL);
 }
 
-void RenderSystem::renderSpheres(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
+void RenderSystem::renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
 {
 	auto models = AutoMap::getComponentGroups<RenderSystem,  MeshComponent, 
 															 TransformComponent, 
@@ -255,8 +209,8 @@ void RenderSystem::renderSpheres(glm::mat4& projection, glm::mat4& view, glm::ma
 			for (auto& kv : outerKv.second)
 			{
 				auto material = kv.first;
-
 				material->BindToShader(shader, "Material");
+
 				auto& meshEntries = mesh->getMeshEntries();
 				for (auto& me : meshEntries)
 				{

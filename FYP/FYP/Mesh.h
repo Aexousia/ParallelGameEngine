@@ -22,7 +22,7 @@ struct MeshEntry {
 
 	void load(aiMesh *mesh);
 	void render();
-	void renderInstanced(std::vector<glm::mat4> mvps, std::vector<glm::mat4> modelViews, std::vector<glm::mat4> normalMats);
+	void renderInstanced(std::vector<glm::mat4>& mvps, std::vector<glm::mat4>& modelViews, std::vector<glm::mat4>& normalMats);
 };
 
 class Mesh

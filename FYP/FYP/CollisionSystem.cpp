@@ -21,9 +21,9 @@ void CollisionSystem::process(float dt)
 	}
 
 	auto spheres = AutoMap::getComponentGroups<CollisionSystem, SphereCollisionComponent, TransformComponent, VelocityComponent>();
-	//snapToBounds(boundsMin, boundsMax, spheres);	
-	//findCollidingPairs(spheres);
-	//resolveCollidingPairs();
+	snapToBounds(boundsMin, boundsMax, spheres);	
+	findCollidingPairs(spheres);
+	resolveCollidingPairs();
 }
 
 void CollisionSystem::snapToBounds(glm::vec3& boundsMin, glm::vec3& boundsMax, std::vector<SphereBodyData>& spheres)

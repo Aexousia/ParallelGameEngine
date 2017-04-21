@@ -133,7 +133,7 @@ void CollisionSystem::resolveCollidingPairs()
 
 void CollisionSystem::findCollidingPairs(std::vector<SphereBodyData>& spheres)
 {
-	std::vector<std::pair<const SphereBodyData&, const SphereBodyData&>> m_bodyPairs;
+	std::vector<std::pair<SphereBodyData&, SphereBodyData&>> m_bodyPairs;
 	//N(N-1)/2
 	m_bodyPairs.reserve((spheres.size() * (spheres.size() - 1)) / 2);
 	for (int i = 0; i < spheres.size(); i++)
@@ -146,7 +146,7 @@ void CollisionSystem::findCollidingPairs(std::vector<SphereBodyData>& spheres)
 
 	for (auto& pair : m_bodyPairs)
 	{
-		//pairCollidingCheck(pair.first, pair.second);
+		pairCollidingCheck(pair.first, pair.second);
 	}
 }
 

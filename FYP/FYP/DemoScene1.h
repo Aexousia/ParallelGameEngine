@@ -19,7 +19,7 @@ public:
 		
 		const int NUM_MATERIALS = 4;
 		const char* materials[NUM_MATERIALS] = { "red", "blue", "green", "default" };
-		for (int i = 0; i < 2500; i++)
+		for (int i = 0; i < 500; i++)
 		{
 			spheres.push_back(new Sphere(glm::vec3(), rand() % 12 + 2, materials[rand() % NUM_MATERIALS]));
 		};
@@ -28,7 +28,7 @@ public:
 			new Light(glm::vec3(20, 20, 0), Colour(), Colour(), Colour())
 		};
 		std::vector<Cube*> cubes = {
-			new Cube(glm::vec3(), 1000)
+			new Cube(glm::vec3(), 500)
 		};
 		
 		for (auto& sphere : spheres)

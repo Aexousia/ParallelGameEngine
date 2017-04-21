@@ -43,8 +43,8 @@ bool Game::init() {
 
 	//registerSystems
 	REGISTER_SYSTEM(RenderSystem);
-	REGISTER_SYSTEM(CollisionSystem, 50);
-	REGISTER_SYSTEM(PhysicsSystem, 100);
+	REGISTER_SYSTEM(CollisionSystem);
+	REGISTER_SYSTEM(PhysicsSystem);
 
 	//create scenes
 	DemoScene1* demo1 = new DemoScene1();

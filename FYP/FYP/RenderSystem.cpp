@@ -138,6 +138,7 @@ void RenderSystem::initGlew()
 
 void RenderSystem::process(float dt)
 {
+	auto ticks1 = SDL_GetTicks();
 	//add binding of opengl context to this thread
 	SDL_GL_MakeCurrent(m_window, m_glcontext);
 	SINGLETON(UISystem)->UpdateUI(dt, m_window);
@@ -153,8 +154,8 @@ void RenderSystem::process(float dt)
 	m_camera.GetMatricies(projection, view, model);
 	glm::mat4 VP = projection * view;	//vp matrix
 
-	renderModels(projection, view, VP);
-	//renderLights(projection, view, VP);
+	renderModelsInstanced(projection, view, VP);
+	renderLights(projection, view, VP);
 
 	////RenderUI last
 	SINGLETON(UISystem)->Render();
@@ -162,9 +163,60 @@ void RenderSystem::process(float dt)
 
 	////remove context binding of opengl from this thread
 	SDL_GL_MakeCurrent(m_window, NULL);
+
+	auto ticks2 = SDL_GetTicks();
+
+	std::cout << ticks2 - ticks1 << " - Rendering" << std::endl;
 }
 
 void RenderSystem::renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
+{
+	auto models = AutoMap::getComponentGroups<RenderSystem, MeshComponent,
+		TransformComponent,
+		MaterialComponent,
+		ShaderComponent>();
+	for (auto model : models)
+	{
+		MeshComponent* modelMesh;
+		TransformComponent* modelTransform;
+		MaterialComponent* modelMaterial;
+		ShaderComponent* modelShader;
+		NULL_COMPONENT* _;
+		std::tie(modelMesh, modelTransform, modelMaterial, modelShader, _) = model;
+
+		//get shader
+		auto shader = SINGLETON(AssetLoader)->findAssetByKey<Shader>(modelShader->key);
+		Shader::bind(shader); // bind shader
+		bindLights(shader); // bind lights to shader
+
+							//get and bind material to shader
+		Material* mat = modelMaterial->material;
+		mat->BindToShader(shader, "Material");
+
+		//get matrices for model
+		glm::mat4 MVP = modelTransform->GetMVP(VP);
+		glm::mat4 Model = modelTransform->GetModel();
+		glm::mat4 ModelView = view * Model;
+		glm::mat4 Normal = glm::transpose(glm::inverse(ModelView));
+
+		// set matrices
+		GLuint vars[3] = {
+			shader->getUniformLocation("ModelViewMatrix"),
+			shader->getUniformLocation("NormalMatrix"),
+			shader->getUniformLocation("MVP")
+		};
+
+		glUniformMatrix4fv(vars[0], 1, GL_FALSE, glm::value_ptr(ModelView));
+		glUniformMatrix4fv(vars[1], 1, GL_FALSE, glm::value_ptr(Normal));
+		glUniformMatrix4fv(vars[2], 1, GL_FALSE, glm::value_ptr(MVP));
+
+		//render model
+		modelMesh->mesh->render();
+	}
+}
+
+
+void RenderSystem::renderModelsInstanced(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
 {
 	auto models = AutoMap::getComponentGroups<RenderSystem,  MeshComponent, 
 															 TransformComponent, 
@@ -189,10 +241,10 @@ void RenderSystem::renderModels(glm::mat4& projection, glm::mat4& view, glm::mat
 			glm::mat4 MVP = modelTransform->GetMVP(VP);
 			glm::mat4 Model = modelTransform->GetModel();
 			glm::mat4 ModelView = view * Model;
-
-			auto material = SINGLETON(AssetLoader)->findAssetByKey<Material>(modelMaterial->key);
-			auto mesh = SINGLETON(AssetLoader)->findAssetByKey<Mesh>(modelMesh->key);
 			glm::mat4 Normal = glm::transpose(glm::inverse(ModelView));
+
+			auto material = modelMaterial->material;
+			auto mesh = modelMesh->mesh;
 			std::get<0>(instanceData[mesh][material]).push_back(MVP);
 			std::get<1>(instanceData[mesh][material]).push_back(ModelView);
 			std::get<2>(instanceData[mesh][material]).push_back(Normal);

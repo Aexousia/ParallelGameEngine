@@ -10,23 +10,23 @@ struct MeshComponent : public IComponent, public AutoMapper<MeshComponent, Rende
 				SYSTEM(RenderSystem)
 			})
 		,	IComponent(parent)
-		,	key(meshKey)
+		,	mesh(SINGLETON(AssetLoader)->findAssetByKey<Mesh>(meshKey))
 	{}
 
 	inline void ChangeOccured(Change change, IComponent* subject) override
 	{
-		MeshComponent* material = static_cast<MeshComponent*>(subject);
+		MeshComponent* meshComponent = static_cast<MeshComponent*>(subject);
 		if (change & GraphicsChanges::key)
 		{
-			key = material->key;
+			mesh = meshComponent->mesh;
 		}
 	}
 
 	inline void SetKey(const char* newKey)
 	{
-		key = newKey;
+		mesh = SINGLETON(AssetLoader)->findAssetByKey<Mesh>(newKey);
 		SINGLETON(SyncManager)->registerChanges(this, GraphicsChanges::key);
 	}
 
-	const char* key;
+	Mesh* mesh;
 };

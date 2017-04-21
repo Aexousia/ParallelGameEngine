@@ -5,6 +5,7 @@
 
 void CollisionSystem::process(float dt)
 {
+	auto ticks1 = SDL_GetTicks();
 	auto cubes = AutoMap::getComponentGroups<CollisionSystem, AxisAlignedCubeCollisionComponent, TransformComponent>();
 
 	glm::vec3 boundsMax, boundsMin;
@@ -24,6 +25,9 @@ void CollisionSystem::process(float dt)
 	snapToBounds(boundsMin, boundsMax, spheres);	
 	findCollidingPairs(spheres);
 	resolveCollidingPairs();
+
+	auto ticks2 = SDL_GetTicks();
+	std::cout << ticks2 - ticks1 << " - Collision" << std::endl;
 }
 
 void CollisionSystem::snapToBounds(glm::vec3& boundsMin, glm::vec3& boundsMax, std::vector<SphereBodyData>& spheres)

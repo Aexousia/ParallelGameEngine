@@ -125,12 +125,6 @@
     <ClInclude Include="UISystem.h">
       <Filter>ECS\Systems</Filter>
     </ClInclude>
-    <ClInclude Include="TestSystem.h">
-      <Filter>ECS\Systems</Filter>
-    </ClInclude>
-    <ClInclude Include="Circle.h">
-      <Filter>ECS\Components</Filter>
-    </ClInclude>
     <ClInclude Include="Camera\Camera.h">
       <Filter>Camera</Filter>
     </ClInclude>
@@ -230,6 +224,9 @@
     <ClInclude Include="PhysicsSystem.h">
       <Filter>ECS\Systems</Filter>
     </ClInclude>
+    <ClInclude Include="MassComponent.h">
+      <Filter>ECS\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -257,9 +254,6 @@
       <Filter>imgui</Filter>
     </ClCompile>
     <ClCompile Include="RenderSystem.cpp">
-      <Filter>ECS\Systems</Filter>
-    </ClCompile>
-    <ClCompile Include="TestSystem.cpp">
       <Filter>ECS\Systems</Filter>
     </ClCompile>
     <ClCompile Include="Camera\Camera.cpp">

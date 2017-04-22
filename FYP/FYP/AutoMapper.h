@@ -42,17 +42,15 @@ namespace AutoMap
 			Component4*,
 			Component5*>> groupedComponents;
 
-		unsigned int
-		components =	Groupable<Component1>::bitId |
-						Groupable<Component2>::bitId |
-						Groupable<Component3>::bitId |
-						Groupable<Component4>::bitId |
-						Groupable<Component5>::bitId;
-
 		auto& map = AutoMap::getMap<Component1, SYSTEM>();
 		for (auto& kv : map)
 		{
-			if (kv.first->getComponentBitMask() & components) //if entity matches
+			unsigned int entityMask = kv.first->getComponentBitMask();
+			if (entityMask & Groupable<Component1>::bitId &&
+				entityMask & Groupable<Component2>::bitId &&
+				entityMask & Groupable<Component3>::bitId &&
+				entityMask & Groupable<Component4>::bitId &&
+				entityMask & Groupable<Component5>::bitId) //if entity matches
 			{
 				groupedComponents.push_back(std::make_tuple(
 					kv.second, 
@@ -91,7 +89,7 @@ template<	typename Component,
 			typename SYSTEM2 = NULL_SYSTEM,  //more systems are optional
 			typename SYSTEM3 = NULL_SYSTEM, 
 			typename SYSTEM4 = NULL_SYSTEM>
-class AutoMapper : Groupable<Component>
+class AutoMapper : public Groupable<Component>
 {
 public:
 	AutoMapper(std::unordered_map<ISystem*, int> priorityMap)

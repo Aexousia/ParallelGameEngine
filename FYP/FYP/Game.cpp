@@ -39,11 +39,10 @@ bool Game::init() {
 
 	//initialize systems
 	SINGLETON(RenderSystem)->initialize(m_screenSize);
-	SINGLETON(TestSystem)->initialize(m_screenSize);
 
 	//registerSystems
 	REGISTER_SYSTEM(RenderSystem);
-	REGISTER_SYSTEM(CollisionSystem);
+	REGISTER_SYSTEM_TICK_RATE(CollisionSystem, 15);
 	REGISTER_SYSTEM(PhysicsSystem);
 
 	//create scenes
@@ -94,13 +93,10 @@ void Game::loop()
 	float timeSinceLastFrameCheck = 0;
 
 	SINGLETON(SyncManager)->DistributeChanges();
+
+	float deltaTime = 0;
 	
 	while (!quit) { //game loop
-
-		capTimer.start();
-		unsigned int currentTime = LTimer::gameTime();//millis since game started
-		float deltaTime = (currentTime - lastTime) / 1000.0;//time since last update
-		lastTime = currentTime; //save the curent time for next frame
 
 		while (SDL_PollEvent(&event))
 		{
@@ -116,6 +112,11 @@ void Game::loop()
 			SINGLETON(UISystem)->ProcessInput(event);
 			SINGLETON(RenderSystem)->CameraInput(event, deltaTime);
 		}
+
+		capTimer.start();
+		unsigned int currentTime = LTimer::gameTime();//millis since game started
+		deltaTime = (currentTime - lastTime) / 1000.0;//time since last update
+		lastTime = currentTime; //save the curent time for next frame
 
 		update(deltaTime);
 		SINGLETON(SceneManager)->update();

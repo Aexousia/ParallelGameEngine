@@ -83,7 +83,7 @@ struct IComponent
 class IEntity
 {
 public:
-	IEntity()
+	IEntity() : m_componentBitMask(Groupable<NULL_COMPONENT>::bitId)
 	{
 		alive = true;
 	}

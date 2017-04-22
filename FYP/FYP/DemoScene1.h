@@ -4,6 +4,7 @@
 #include <Light.h>
 #include <Cube.h>
 #include <STDHelperFunctions.h>
+#include <MassComponent.h>
 
 class DemoScene1 : public IScene
 {
@@ -16,12 +17,13 @@ public:
 	void enter() override
 	{
 		std::vector<Sphere*> spheres;
-		
-		const int NUM_MATERIALS = 4;
-		const char* materials[NUM_MATERIALS] = { "red", "blue", "green", "default" };
+		std::vector<const char*> materials = { "red", "blue", "green", "default" };
 		for (int i = 0; i < 2000; i++)
 		{
-			spheres.push_back(new Sphere(glm::vec3(), rand() % 12 + 2, materials[rand() % NUM_MATERIALS]));
+			int radius = rand() % 12 + 7;
+			auto sphere = new Sphere(glm::vec3(), radius, materials[rand() % materials.size()]);
+			sphere->AddComponent<MassComponent>(new MassComponent(sphere, 4.f/3.f * radius * radius * radius * PI));
+			spheres.push_back(sphere);
 		};
 
 		std::vector<Light*> lights = {

@@ -22,6 +22,8 @@ public:
 		AddComponent<SphereCollisionComponent>(new SphereCollisionComponent(this));
 	}
 
+	virtual ~Sphere() {}
+
 private:
 
 };

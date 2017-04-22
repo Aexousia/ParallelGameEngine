@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "TaskQueue.h"
 #include <assert.h>
+#include <PerformanceMonitor.h>
 
 void TaskQueue::decrementActiveWorkers()
 {
@@ -75,6 +76,8 @@ TaskQueue::TaskQueue()
 	,	m_workerSlotsFree(SDL_CreateSemaphore(0))
 	,	m_idle(SDL_CreateSemaphore(0))
 	,	m_waitingUntilIdle(false)
+	,	m_metricsLock(SDL_CreateMutex())
+	,	m_threadIdLock(SDL_CreateMutex())
 {
 }
 
@@ -92,6 +95,7 @@ void TaskQueue::spawnWorkers(unsigned int numWorkers)
 		m_numActiveWorkers++;
 		SDL_SemPost(m_workerSlotsFree);
 	}
+	SDL_CreateThread(performance_monitor, "PerformanceMonitor", (void *)NULL);
 }
 
 SDL_sem * TaskQueue::canConsume()
@@ -174,4 +178,26 @@ void TaskQueue::jobDone()
 		SDL_UnlockMutex(m_queueLock);
 	}
 	SDL_UnlockMutex(m_processedLock);
+}
+
+void TaskQueue::addCPUMetric(float cpuTime, int core)
+{
+	SDL_LockMutex(m_metricsLock);
+	if (core >= m_cpuMetrics.size())
+	{
+		m_cpuMetrics.push_back(cpuTime);
+	}
+	else
+	{
+		m_cpuMetrics[core] = cpuTime;
+	}
+	SDL_UnlockMutex(m_metricsLock);
+}
+
+std::vector<float> TaskQueue::getCpuMetrics()
+{
+	SDL_LockMutex(m_metricsLock);
+	auto copy = m_cpuMetrics;
+	SDL_UnlockMutex(m_metricsLock);
+	return copy;
 }

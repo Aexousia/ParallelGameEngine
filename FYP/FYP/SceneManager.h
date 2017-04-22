@@ -50,22 +50,49 @@ protected:
 	std::vector<IEntity*> m_entities;
 };
 
+class DefaultScene : public IScene
+{
+public:
+	DefaultScene()
+		: IScene("default")
+	{
+	}
+
+	void enter() override
+	{
+	}
+};
+
 class SceneManager : public Singleton<SceneManager>
 {
 public:
+	SceneManager()
+	{
+		m_scenes["default"] = &m_default;
+	}
+
 	//simple getter which tells you the current scene, may not be needed
 	const std::string getCurrentScene()
 	{
 		return m_currentScene->getKey();
 	}
 
-	void update()
+	bool update()
 	{
+		bool newScene = false;
 		if (m_currentScene != nullptr)
 		{
 			if (m_currentScene->getKey() != m_nextScene)
 			{
-				switchTo(m_nextScene);
+				if (m_currentScene->getKey() == std::string("default"))
+				{
+					switchTo(m_nextScene);
+				}
+				else
+				{
+					switchTo("default");
+				}
+				newScene = true;
 			}
 			else
 			{
@@ -76,6 +103,7 @@ public:
 		{
 			printf("No Scene Active \n");
 		}
+		return newScene;
 	}
 
 	void setNextScene(std::string nextScene)
@@ -110,7 +138,7 @@ private:
 		}
 		else
 		{
-			printf("scene not found");
+			printf("scene not found\n");
 			if (m_currentScene != nullptr)
 			{
 				m_nextScene = m_currentScene->getKey();
@@ -134,6 +162,7 @@ private:
 	}
 
 	IScene* m_currentScene;
+	DefaultScene m_default;
 	std::string m_nextScene;
 	std::unordered_map<std::string, IScene*> m_scenes;
 };

@@ -32,6 +32,7 @@ public:
 	void resolveCollidingPairs();
 	void findCollidingPairs();
 	void pairCollidingCheck(SphereBodyData body1, SphereBodyData body2);
+	void newScene();
 
 private:
 	std::unordered_map<int, std::vector<CollisionPair>> m_collidingPairs;

@@ -94,7 +94,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\dependancies\sdl\lib\x86;$(ProjectDir)..\..\dependancies\GL\lib\x86;$(ProjectDir)..\..\dependancies\assimp\32d;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp.lib;glu32.lib;opengl32.lib;glew32.lib;SDL2.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pdh.lib;assimp.lib;glu32.lib;opengl32.lib;glew32.lib;SDL2.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "..\..\dependancies\dlls\x86\*.dll" "$(OutDir)";
@@ -138,7 +138,7 @@ copy "..\..\dependancies\dlls\x64\assimp_debug-dll_x64\*.dll" "$(OutDir)";</Comm
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\dependancies\sdl\lib\x86;$(ProjectDir)..\..\dependancies\GL\lib\x86;$(ProjectDir)..\..\dependancies\assimp\32r;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp.lib;glu32.lib;opengl32.lib;glew32.lib;SDL2.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>pdh.lib;assimp.lib;glu32.lib;opengl32.lib;glew32.lib;SDL2.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "..\..\dependancies\dlls\x86\*.dll" "$(OutDir)";
@@ -183,6 +183,8 @@ copy "..\..\dependancies\dlls\x64\assimp_release-dll_x64\*.dll" "$(OutDir)";</Co
     <ClInclude Include="Cube.h" />
     <ClInclude Include="DemoScene1.h" />
     <ClInclude Include="DemoScene2.h" />
+    <ClInclude Include="DemoScene3.h" />
+    <ClInclude Include="DemoScene4.h" />
     <ClInclude Include="ECSInterfaces.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="Game.h" />
@@ -197,6 +199,7 @@ copy "..\..\dependancies\dlls\x64\assimp_release-dll_x64\*.dll" "$(OutDir)";</Co
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshAsset.h" />
     <ClInclude Include="MeshComponent.h" />
+    <ClInclude Include="PerformanceMonitor.h" />
     <ClInclude Include="PhysicsSystem.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Shader.h" />

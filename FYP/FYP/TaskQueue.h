@@ -14,7 +14,7 @@ class TaskQueue : public Singleton<TaskQueue>
 {
 private:
 	static TaskQueue * m_instance;
-	SDL_mutex* m_queueLock, *m_threadIdLock, *m_processedLock, *m_activeWorkersLock;
+	SDL_mutex* m_queueLock, *m_threadIdLock, *m_processedLock, *m_activeWorkersLock, *m_metricsLock;
 	SDL_sem* m_canConsume, *m_workerSlotsFree, *m_idle;
 	std::deque<std::function<void()>> m_jobs;
 	std::vector<SDL_Thread*> m_workerPool;
@@ -23,6 +23,7 @@ private:
 	int m_numActiveWorkers;
 	int m_maxActiveWorkers;
 	std::vector<SDL_threadID> m_threadIDs;
+	std::vector<float> m_cpuMetrics;
 
 public:
 	bool threadingActive;
@@ -40,6 +41,8 @@ public:
 	std::function<void()> consumeJob();
 	void waitUntilIdle();
 	void jobDone();
+	void addCPUMetric(float cpuTime, int core);
+	std::vector<float> getCpuMetrics();
 
 	//*TaskQueue::addJob(std::bind(&Some_Class::Some_Method, &Some_object, ...Args)); 
 	void addJob(std::function<void()> f);

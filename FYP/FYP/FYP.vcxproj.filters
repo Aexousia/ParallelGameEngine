@@ -227,6 +227,15 @@
     <ClInclude Include="MassComponent.h">
       <Filter>ECS\Components</Filter>
     </ClInclude>
+    <ClInclude Include="PerformanceMonitor.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoScene3.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoScene4.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

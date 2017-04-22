@@ -2,6 +2,10 @@
 #include <algorithm>
 #include <vector>
 
+#ifdef max
+#undef max
+#endif
+
 typedef unsigned int Change;
 class IEntity;
 

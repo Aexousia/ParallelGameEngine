@@ -21,6 +21,8 @@ public:
 		AddComponent<AxisAlignedCubeCollisionComponent>(new AxisAlignedCubeCollisionComponent(this));
 	}
 
+	virtual ~Cube() {}
+
 private:
 
 };

@@ -3,6 +3,7 @@
 #include <CollisionComponent.h>
 #include <VelocityComponent.h>
 #include <MassComponent.h>
+#include <UISystem.h>
 
 CollisionSystem::CollisionSystem()
 	:	m_blocking(SDL_CreateSemaphore(0))
@@ -148,7 +149,7 @@ void CollisionSystem::resolveCollidingPairs()
 
 void CollisionSystem::findCollidingPairs()
 {
-	int batchSize = 10;
+	int batchSize = SINGLETON(UISystem)->getCollisionBatchSize();
 	BATCH_LIST_BEGIN(m_spheres, batchSize, sphere1, &)
 		for (int k = i + 1; k < m_spheres.size(); k++)
 		{
@@ -189,5 +190,13 @@ void CollisionSystem::pairCollidingCheck(SphereBodyData body1, SphereBodyData bo
 	{
 		float overlap = b1Radius + b2Radius - glm::distance(b1Pos, b2Pos) ;
 		m_collidingPairs[SDL_ThreadID()].push_back(CollisionPair(body1, body2, overlap));
+	}
+}
+
+void CollisionSystem::newScene()
+{
+	for (auto& kv : m_collidingPairs)
+	{
+		kv.second.clear();
 	}
 }

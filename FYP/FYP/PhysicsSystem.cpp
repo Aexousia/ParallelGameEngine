@@ -2,11 +2,13 @@
 #include "PhysicsSystem.h"
 #include <VelocityComponent.h>
 #include <TransformComponent.h>
+#include <UISystem.h>
 
 void PhysicsSystem::process(float dt)
 {
 	auto bodies = AutoMap::getComponentGroups<PhysicsSystem, VelocityComponent, TransformComponent>();
-	BATCH_LIST_BEGIN(bodies, 100, body, bodies, dt)
+	int batchSize = SINGLETON(UISystem)->getCollisionBatchSize();
+	BATCH_LIST_BEGIN(bodies, batchSize, body, bodies, dt)
 	{
 		TransformComponent* bodyTransform;
 		VelocityComponent* bodyVelocity;

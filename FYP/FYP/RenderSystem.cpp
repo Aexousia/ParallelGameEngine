@@ -12,56 +12,59 @@ RenderSystem::RenderSystem() : m_cameraSpin(0), m_cameraSpinSpeed(0.1f), m_camer
 
 void RenderSystem::CameraInput(SDL_Event evt, float dt)
 {
-	static std::unordered_map<SDL_Keycode, bool> wasPressed;
-	SDL_Keycode key = evt.key.keysym.sym;
-
-	if (evt.type == SDL_KEYDOWN)
+	if (!SINGLETON(UISystem)->isCameraScripted())
 	{
-		switch (key)
+		static std::unordered_map<SDL_Keycode, bool> wasPressed;
+		SDL_Keycode key = evt.key.keysym.sym;
+
+		if (evt.type == SDL_KEYDOWN)
 		{
-		case (SDLK_w):
-			m_camera.Move(FORWARD);
-			break;
-		case (SDLK_a):
-			m_camera.Move(LEFT);
-			break;
-		case (SDLK_s):
-			m_camera.Move(BACK);
-			break;
-		case (SDLK_d):
-			m_camera.Move(RIGHT);
-			break;
-		case (SDLK_q):
-			m_camera.Move(DOWN);
-			break;
-		case (SDLK_e):
-			m_camera.Move(UP);
-			break;
-		case (SDLK_UP):
-			m_camera.ChangePitch(0.08f);
-			break;
-		case (SDLK_DOWN):
-			m_camera.ChangePitch(-0.08f);
-			break;
-		case (SDLK_LEFT):
-			m_camera.ChangeHeading(0.08f);
-			break;
-		case (SDLK_RIGHT):
-			m_camera.ChangeHeading(-0.08f);
-			break;
-		default:
-			break;
+			switch (key)
+			{
+			case (SDLK_w):
+				m_camera.Move(FORWARD);
+				break;
+			case (SDLK_a):
+				m_camera.Move(LEFT);
+				break;
+			case (SDLK_s):
+				m_camera.Move(BACK);
+				break;
+			case (SDLK_d):
+				m_camera.Move(RIGHT);
+				break;
+			case (SDLK_q):
+				m_camera.Move(DOWN);
+				break;
+			case (SDLK_e):
+				m_camera.Move(UP);
+				break;
+			case (SDLK_UP):
+				m_camera.ChangePitch(0.08f);
+				break;
+			case (SDLK_DOWN):
+				m_camera.ChangePitch(-0.08f);
+				break;
+			case (SDLK_LEFT):
+				m_camera.ChangeHeading(0.08f);
+				break;
+			case (SDLK_RIGHT):
+				m_camera.ChangeHeading(-0.08f);
+				break;
+			default:
+				break;
+			}
 		}
-	}
 
 
-	if (evt.type == SDL_KEYDOWN)
-	{
-		wasPressed[evt.key.keysym.sym] = true;
-	}
-	if (evt.type == SDL_KEYUP)
-	{
-		wasPressed[evt.key.keysym.sym] = false;
+		if (evt.type == SDL_KEYDOWN)
+		{
+			wasPressed[evt.key.keysym.sym] = true;
+		}
+		if (evt.type == SDL_KEYUP)
+		{
+			wasPressed[evt.key.keysym.sym] = false;
+		}
 	}
 }
 
@@ -114,7 +117,7 @@ void RenderSystem::setupWindow()
 
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
-	m_window = SDL_CreateWindow("Parallel Game Engine - George Dixon", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_windowSize.w, m_windowSize.h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN);
+	m_window = SDL_CreateWindow("Parallel Game Engine - George Dixon", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_windowSize.w, m_windowSize.h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_FULLSCREEN*/);
 	m_glcontext = SDL_GL_CreateContext(m_window);
 }
 
@@ -147,13 +150,16 @@ void RenderSystem::process(float dt)
 	SDL_GL_MakeCurrent(m_window, m_glcontext);
 	SINGLETON(UISystem)->UpdateUI(dt, m_window);
 
-	m_cameraSpin -= dt * m_cameraSpinSpeed;
-	if (m_cameraSpin < 0)
+	if (SINGLETON(UISystem)->isCameraScripted())
 	{
-		m_cameraSpin = 2 * PI;
+		m_cameraSpin -= dt * m_cameraSpinSpeed;
+		if (m_cameraSpin < 0)
+		{
+			m_cameraSpin = 2 * PI;
+		}
+		m_camera.SetPosition(glm::vec3(m_cameraOffset* cos(m_cameraSpin), m_cameraOffset, m_cameraOffset * sin(m_cameraSpin)));
+		m_camera.SetLookAt(glm::vec3(0, 0, 0));
 	}
-	m_camera.SetPosition(glm::vec3(m_cameraOffset* cos(m_cameraSpin), m_cameraOffset, m_cameraOffset * sin(m_cameraSpin)));
-	m_camera.SetLookAt(glm::vec3(0, 0, 0));
 
 	//// Rendering
 	glViewport(0, 0, (int)m_windowSize.w, (int)m_windowSize.h);

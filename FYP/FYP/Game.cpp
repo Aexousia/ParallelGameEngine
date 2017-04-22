@@ -8,6 +8,8 @@
 #include "Assets.h"
 #include <DemoScene1.h>
 #include <DemoScene2.h>
+#include <DemoScene4.h>
+#include <DemoScene3.h>
 #include <CollisionSystem.h>
 #include <PhysicsSystem.h>
 #include <InputSystem.h>
@@ -39,6 +41,7 @@ bool Game::init() {
 
 	//initialize systems
 	SINGLETON(RenderSystem)->initialize(m_screenSize);
+	SINGLETON(UISystem)->initialize(&quit);
 
 	//registerSystems
 	REGISTER_SYSTEM(RenderSystem);
@@ -48,13 +51,17 @@ bool Game::init() {
 	//create scenes
 	DemoScene1* demo1 = new DemoScene1();
 	DemoScene2* demo2 = new DemoScene2();
+	DemoScene3* demo3 = new DemoScene3();
+	DemoScene4* demo4 = new DemoScene4();
 
 	//add scenes
 	SINGLETON(SceneManager)->addScene(demo1);
 	SINGLETON(SceneManager)->addScene(demo2);
+	SINGLETON(SceneManager)->addScene(demo3);
+	SINGLETON(SceneManager)->addScene(demo4);
 
 	//switch to initial scene
-	SINGLETON(SceneManager)->setNextScene("DemoScene1");
+	SINGLETON(SceneManager)->setNextScene("default");
 
 	return true;
 }
@@ -108,7 +115,11 @@ void Game::loop()
 		lastTime = currentTime; //save the curent time for next frame
 
 		update(deltaTime);
-		SINGLETON(SceneManager)->update();
+		if (SINGLETON(SceneManager)->update()) //new scene is active, notify dependant systems
+		{
+			SINGLETON(CollisionSystem)->newScene();
+			SINGLETON(SyncManager)->DistributeChanges();
+		}
 
 		int frameTicks = capTimer.getTicks();//time since start of frame
 		if (frameTicks < SCREEN_TICKS_PER_FRAME)

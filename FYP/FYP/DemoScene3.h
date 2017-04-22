@@ -6,11 +6,11 @@
 #include <STDHelperFunctions.h>
 #include <MassComponent.h>
 
-class DemoScene2 : public IScene
+class DemoScene3 : public IScene
 {
 public:
-	DemoScene2()
-		: IScene("DemoScene2")
+	DemoScene3()
+		: IScene("DemoScene3")
 	{
 	}
 
@@ -18,7 +18,7 @@ public:
 	{
 		std::vector<Sphere*> spheres;
 		std::vector<const char*> materials = { "emerald", "jade", "obsidian", "pearl", "ruby", "brass", "turquoise", "bronze", "chrome", "copper", "gold", "silver", "black plastic", "cyan plastic", "green plastic" };
-		for (int i = 0; i < 1500; i++)
+		for (int i = 0; i < 1000; i++)
 		{
 			int radius = rand() % 12 + 7;
 			auto sphere = new Sphere(glm::vec3(), radius, materials[rand() % materials.size()]);

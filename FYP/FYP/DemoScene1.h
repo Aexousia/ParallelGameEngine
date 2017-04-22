@@ -17,7 +17,7 @@ public:
 	void enter() override
 	{
 		std::vector<Sphere*> spheres;
-		std::vector<const char*> materials = { "red", "blue", "green", "default" };
+		std::vector<const char*> materials = { "emerald", "jade", "obsidian", "pearl", "ruby", "brass", "turquoise", "bronze", "chrome", "copper", "gold", "silver", "black plastic", "cyan plastic", "green plastic" };
 		for (int i = 0; i < 2000; i++)
 		{
 			int radius = rand() % 12 + 7;

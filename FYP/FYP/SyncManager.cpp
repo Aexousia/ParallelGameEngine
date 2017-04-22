@@ -43,12 +43,11 @@ void SyncManager::registerChanges(IComponent * self, Change changes)
 
 void SyncManager::DistributeChanges()
 {
-	auto ticks1 = SDL_GetTicks();
 	//to allow parallel distribution of changes, modifications to the same components
 	//must either be grouped together as one, or culled by system priority/time
 	//this results in a single change to each component at maximum, allowing us to parallelize the
 	//distribution of changes
-	std::vector<ChangeNotification> notificationQueue;
+	std::deque<ChangeNotification> notificationQueue;
 	std::vector<ChangeNotification*> filteredNotifications;
 	
 	//first, since we are now running sequentially, we must merge the notification queues allocated to each thread
@@ -69,20 +68,18 @@ void SyncManager::DistributeChanges()
 	BATCH_LIST_END
 
 	SINGLETON(TaskQueue)->waitUntilIdle();
-	auto ticks2 = SDL_GetTicks();
-	//std::cout << ticks2 - ticks1 << " - Sycnhronization" << std::endl;
 }
 
-void SyncManager::MergeNotificationQueue(std::vector<ChangeNotification>& out)
+void SyncManager::MergeNotificationQueue(std::deque<ChangeNotification>& out)
 {
 	for (auto& kv : m_notificationQueue)
 	{
-		out += kv.second;
+		out.insert(out.end(), kv.second.begin(), kv.second.end());
 		kv.second.clear();
 	}
 }
 
-void SyncManager::FilterNotifications(std::vector<ChangeNotification>& notifications, std::vector<ChangeNotification*>& result)
+void SyncManager::FilterNotifications(std::deque<ChangeNotification>& notifications, std::vector<ChangeNotification*>& result)
 {
 	//find duplicate notifications and either cull or merge them appropriately
 	std::map<IComponent*, ChangeNotification*> notifsByObserver;

@@ -67,17 +67,6 @@ void Game::destroy()
 //** calls update on all game entities*/
 void Game::update(float dt)
 {
-	/*for (int i = 0; i < 50; i++)
-	{
-		TASK_BEGIN()
-		{
-			float x;
-			for (int y = 0; y < 10000; y++) { x = cosf(1782.45678) * cosf(2179271) * y; }
-		}
-		TASK_END
-		
-	}*/
-
 	SINGLETON(SystemManager)->runSystems(dt);
 	SINGLETON(TaskQueue)->waitUntilIdle();
 	SINGLETON(SyncManager)->DistributeChanges();

@@ -10,6 +10,8 @@
 class RenderSystem : public ISystem, public Singleton<RenderSystem>
 {
 public:
+	RenderSystem();
+
 	void CameraInput(SDL_Event evt, float dt);
 
 	void initialize(Size2D screenSize);
@@ -37,4 +39,7 @@ private:
 	Size2D m_windowSize;
 	SDL_GLContext m_glcontext;
 	Camera m_camera;
+	float m_cameraSpin;
+	float m_cameraOffset;
+	const float m_cameraSpinSpeed;
 };

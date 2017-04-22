@@ -6,6 +6,10 @@
 #include <ShaderComponent.h>
 #include <LightComponent.h>
 
+RenderSystem::RenderSystem() : m_cameraSpin(0), m_cameraSpinSpeed(0.1f), m_cameraOffset(900)
+{
+}
+
 void RenderSystem::CameraInput(SDL_Event evt, float dt)
 {
 	static std::unordered_map<SDL_Keycode, bool> wasPressed;
@@ -86,8 +90,8 @@ void RenderSystem::initialize(Size2D screenSize)
 void RenderSystem::setUpCamera()
 {
 	m_camera.SetMode(CameraType::FREE);
-	m_camera.SetPosition(glm::vec3(0, 0, 0));
-	m_camera.SetLookAt(glm::vec3(0, 0, 1));
+	m_camera.SetPosition(glm::vec3(m_cameraOffset, m_cameraOffset, m_cameraOffset));
+	m_camera.SetLookAt(glm::vec3(0, 0, 0));
 	m_camera.SetWorldSize(m_windowSize.w, m_windowSize.h);
 	m_camera.SetClipping(10, 2100);
 	m_camera.SetFOV(45);
@@ -110,7 +114,7 @@ void RenderSystem::setupWindow()
 
 	SDL_DisplayMode current;
 	SDL_GetCurrentDisplayMode(0, &current);
-	m_window = SDL_CreateWindow("Parallel Game Engine - George Dixon", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_windowSize.w, m_windowSize.h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE /*| SDL_WINDOW_FULLSCREEN*/);
+	m_window = SDL_CreateWindow("Parallel Game Engine - George Dixon", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_windowSize.w, m_windowSize.h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN);
 	m_glcontext = SDL_GL_CreateContext(m_window);
 }
 
@@ -139,10 +143,17 @@ void RenderSystem::initGlew()
 
 void RenderSystem::process(float dt)
 {
-	auto ticks1 = SDL_GetTicks();
 	//add binding of opengl context to this thread
 	SDL_GL_MakeCurrent(m_window, m_glcontext);
 	SINGLETON(UISystem)->UpdateUI(dt, m_window);
+
+	m_cameraSpin -= dt * m_cameraSpinSpeed;
+	if (m_cameraSpin < 0)
+	{
+		m_cameraSpin = 2 * PI;
+	}
+	m_camera.SetPosition(glm::vec3(m_cameraOffset* cos(m_cameraSpin), m_cameraOffset, m_cameraOffset * sin(m_cameraSpin)));
+	m_camera.SetLookAt(glm::vec3(0, 0, 0));
 
 	//// Rendering
 	glViewport(0, 0, (int)m_windowSize.w, (int)m_windowSize.h);
@@ -164,10 +175,6 @@ void RenderSystem::process(float dt)
 
 	////remove context binding of opengl from this thread
 	SDL_GL_MakeCurrent(m_window, NULL);
-
-	auto ticks2 = SDL_GetTicks();
-
-	//std::cout << ticks2 - ticks1 << " - Rendering" << std::endl;
 }
 
 void RenderSystem::renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)

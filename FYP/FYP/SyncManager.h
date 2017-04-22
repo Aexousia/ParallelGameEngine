@@ -6,6 +6,7 @@
 #include "../dependancies/sdl/SDL.h"
 #include <unordered_map>
 #include <map>
+#include <deque>
 
 //this struct is just a simple data structure which encapsulates a unit 
 //of change to be distributed to an observer
@@ -65,12 +66,12 @@ public:
 
 	void DistributeChanges();
 
-	void MergeNotificationQueue(std::vector<ChangeNotification>& out);
+	void MergeNotificationQueue(std::deque<ChangeNotification>& out);
 
-	void FilterNotifications(std::vector<ChangeNotification>& notifQueue, std::vector<ChangeNotification*>& result);
+	void FilterNotifications(std::deque<ChangeNotification>& notifQueue, std::vector<ChangeNotification*>& result);
 
 private:
-	std::unordered_map<SDL_threadID, std::vector<ChangeNotification>> m_notificationQueue;
+	std::unordered_map<SDL_threadID, std::deque<ChangeNotification>> m_notificationQueue;
 	std::unordered_map<int, std::vector<IComponent*>> m_recipientDirectory;
 	SDL_mutex* m_notifQueueLock;
 	std::map<IComponent*, bool> m_componentIdDeleted;

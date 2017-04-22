@@ -10,6 +10,13 @@ std::vector<T> &operator+=(std::vector<T> &A, const std::vector<T> &B)
 	return A;                                        // here A could be named AB
 }
 
+//template <typename T>
+//std::deque<T> &operator+=(std::deque<T> &A, const std::deque<T> &B)
+//{
+//	A.insert(A.end(), B.begin(), B.end());         // add B;
+//	return A;                                        // here A could be named AB
+//}
+
 //helper function
 template <typename Key, typename Value>
 Value& get_or(std::unordered_map<Key, Value>& m, const Key& key, Value& default_value)

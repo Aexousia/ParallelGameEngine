@@ -49,6 +49,21 @@ bool TaskQueue::isActive(int workerId)
 	return workerId <= activeWorkers;
 }
 
+void TaskQueue::registerThreadId()
+{
+	SDL_LockMutex(m_threadIdLock);
+	m_threadIDs.push_back(SDL_ThreadID());
+	SDL_UnlockMutex(m_threadIdLock);
+}
+
+std::vector<SDL_threadID> TaskQueue::getThreadIds()
+{
+	SDL_LockMutex(m_threadIdLock);
+	auto x = m_threadIDs;
+	SDL_UnlockMutex(m_threadIdLock);
+	return x;
+}
+
 TaskQueue::TaskQueue() 
 	:	m_canConsume(SDL_CreateSemaphore(0))
 	,	m_queueLock(SDL_CreateMutex())
@@ -70,6 +85,7 @@ SDL_mutex * TaskQueue::getLock()
 
 void TaskQueue::spawnWorkers(unsigned int numWorkers)
 {
+	registerThreadId();
 	for (unsigned int i = 0; i < numWorkers; i++)
 	{
 		m_workerPool.push_back(SDL_CreateThread(worker, "GenericWorker", (void*)new int(i)));
@@ -138,10 +154,12 @@ void TaskQueue::waitUntilIdle()
 
 void TaskQueue::jobDone()
 {
+	SDL_LockMutex(m_activeWorkersLock);
 	if (SDL_SemValue(m_workerSlotsFree) < m_numActiveWorkers)
 	{
 		SDL_SemPost(m_workerSlotsFree);
 	}
+	SDL_UnlockMutex(m_activeWorkersLock);
 
 	SDL_LockMutex(m_processedLock);
 	m_busy--;

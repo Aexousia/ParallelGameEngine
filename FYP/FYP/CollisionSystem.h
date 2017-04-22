@@ -5,8 +5,9 @@
 class SphereCollisionComponent;
 class TransformComponent;
 class VelocityComponent;
+class MassComponent;
 
-typedef std::tuple<SphereCollisionComponent*, TransformComponent*, VelocityComponent*, NULL_COMPONENT*, NULL_COMPONENT*> SphereBodyData ;
+typedef std::tuple<SphereCollisionComponent*, TransformComponent*, VelocityComponent*, MassComponent*, NULL_COMPONENT*> SphereBodyData ;
 
 struct CollisionPair
 {
@@ -25,13 +26,16 @@ struct CollisionPair
 class CollisionSystem : public ISystem, public IAutoMapUser<CollisionSystem>
 {
 public:
+	CollisionSystem();
 	void process(float dt) override;
-	void snapToBounds(glm::vec3& boundsMin, glm::vec3& boundsMax, std::vector<std::tuple<SphereCollisionComponent*, TransformComponent*, VelocityComponent*, NULL_COMPONENT*, NULL_COMPONENT*>>& spheres);
+	void snapToBounds(glm::vec3& boundsMin, glm::vec3& boundsMax);
 	void resolveCollidingPairs();
-	void findCollidingPairs(std::vector<SphereBodyData>& spheres);
-	void pairCollidingCheck(SphereBodyData& body1, SphereBodyData& body2);
+	void findCollidingPairs();
+	void pairCollidingCheck(SphereBodyData body1, SphereBodyData body2);
 
 private:
-	std::vector<CollisionPair> m_collidingPairs;
+	std::unordered_map<int, std::vector<CollisionPair>> m_collidingPairs;
 	std::map<TransformComponent*, glm::vec3> m_velocityDelta;
+	std::vector<SphereBodyData> m_spheres;
+	SDL_semaphore* m_blocking;
 };

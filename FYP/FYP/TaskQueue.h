@@ -14,7 +14,7 @@ class TaskQueue : public Singleton<TaskQueue>
 {
 private:
 	static TaskQueue * m_instance;
-	SDL_mutex* m_queueLock, *m_processedLock, *m_activeWorkersLock;
+	SDL_mutex* m_queueLock, *m_threadIdLock, *m_processedLock, *m_activeWorkersLock;
 	SDL_sem* m_canConsume, *m_workerSlotsFree, *m_idle;
 	std::deque<std::function<void()>> m_jobs;
 	std::vector<SDL_Thread*> m_workerPool;
@@ -22,6 +22,7 @@ private:
 	int m_busy;
 	int m_numActiveWorkers;
 	int m_maxActiveWorkers;
+	std::vector<SDL_threadID> m_threadIDs;
 
 public:
 	bool threadingActive;
@@ -29,6 +30,8 @@ public:
 	void incrementActiveWorkers();
 	int getNumActiveWorkers();
 	bool isActive(int workerId);
+	void registerThreadId();
+	std::vector<SDL_threadID> getThreadIds();
 	TaskQueue();
 	SDL_mutex * getLock();
 	void spawnWorkers(unsigned int n=std::thread::hardware_concurrency());
@@ -48,8 +51,8 @@ static int worker(void* ptr)
 	int id = *p_id;
 	delete p_id;
 	srand(0);
-	SINGLETON(SyncManager)->registerThread();//this is done so that we don't have to synchronize notificationQueue access
 	TaskQueue * taskQueue = SINGLETON(TaskQueue);
+	taskQueue->registerThreadId(); //this is done so that we don't have to synchronize access to vectors
 	SDL_mutex * lock = taskQueue->getLock();
 	SDL_sem * canConsume = taskQueue->canConsume();
 	SDL_sem * workerSlotFree = taskQueue->workerSlotFree();
@@ -76,7 +79,7 @@ static int worker(void* ptr)
 
 //Helper macros
 #define BATCH_LIST_BEGIN(vector, batchSize, elementName, ...) \
-for (int i = 0, j = batchSize; i < vector.size(); i += batchSize, j += batchSize)  \
+for (int i = 0, j = batchSize + 1; i < vector.size(); i += batchSize, j += batchSize)  \
 {																				   \
 	if (j > vector.size())														   \
 	{																			   \

@@ -2,10 +2,20 @@
 #include "CollisionSystem.h"
 #include <CollisionComponent.h>
 #include <VelocityComponent.h>
+#include <MassComponent.h>
+
+CollisionSystem::CollisionSystem()
+	:	m_blocking(SDL_CreateSemaphore(0))
+{
+	auto& ids = SINGLETON(TaskQueue)->getThreadIds();
+	for (auto& id : ids)
+	{
+		m_collidingPairs[id];
+	}
+}
 
 void CollisionSystem::process(float dt)
 {
-	auto ticks1 = SDL_GetTicks();
 	auto cubes = AutoMap::getComponentGroups<CollisionSystem, AxisAlignedCubeCollisionComponent, TransformComponent>();
 
 	glm::vec3 boundsMax, boundsMin;
@@ -21,26 +31,24 @@ void CollisionSystem::process(float dt)
 		boundsMin = bodyData->minPosition(bodyTransform);
 	}
 
-	auto spheres = AutoMap::getComponentGroups<CollisionSystem, SphereCollisionComponent, TransformComponent, VelocityComponent>();
-	snapToBounds(boundsMin, boundsMax, spheres);	
-	findCollidingPairs(spheres);
+	m_spheres = AutoMap::getComponentGroups<CollisionSystem, SphereCollisionComponent, TransformComponent, VelocityComponent, MassComponent>();
+	snapToBounds(boundsMin, boundsMax);	
 	resolveCollidingPairs();
-
-	auto ticks2 = SDL_GetTicks();
-	std::cout << ticks2 - ticks1 << " - Collision" << std::endl;
+	findCollidingPairs();
 }
 
-void CollisionSystem::snapToBounds(glm::vec3& boundsMin, glm::vec3& boundsMax, std::vector<SphereBodyData>& spheres)
+void CollisionSystem::snapToBounds(glm::vec3& boundsMin, glm::vec3& boundsMax)
 {
-	for (int i = 0; i < spheres.size(); i++)
+	for (int i = 0; i < m_spheres.size(); i++)
 	{
-		auto body1 = spheres[i];
+		auto body1 = m_spheres[i];
 
 		TransformComponent* body1Transform;
 		SphereCollisionComponent* body1Data;
 		VelocityComponent* body1Velocity;
+		MassComponent* mass;
 		NULL_COMPONENT* _;
-		std::tie(body1Data, body1Transform, body1Velocity, _, _) = body1;
+		std::tie(body1Data, body1Transform, body1Velocity, mass, _) = body1;
 
 		bool b1CollidingWithWall = false;
 		glm::vec3 bodyPos = body1Transform->GetPos();
@@ -84,88 +92,85 @@ void CollisionSystem::snapToBounds(glm::vec3& boundsMin, glm::vec3& boundsMax, s
 
 void CollisionSystem::resolveCollidingPairs()
 {
-	for (auto& collision : m_collidingPairs)
+	for (auto& kv : m_collidingPairs)
 	{
-		TransformComponent* body1Transform;
-		SphereCollisionComponent* body1Data;
-		VelocityComponent* body1Velocity;
-		NULL_COMPONENT* _;
-		std::tie(body1Data, body1Transform, body1Velocity, _, _) = collision.body1;
-
-		TransformComponent* body2Transform;
-		SphereCollisionComponent* body2Data;
-		VelocityComponent* body2Velocity;
-		std::tie(body2Data, body2Transform, body2Velocity, _, _) = collision.body2;
-
-		glm::vec3	b1Pos = body1Transform->GetPos(),
-					b2Pos = body2Transform->GetPos();
-
-		glm::vec3 b2Tob1Dir = glm::normalize(b1Pos - b2Pos);
-
-		if (b1Pos == b2Pos)
+		for (auto& collision : kv.second)
 		{
-			b2Tob1Dir = glm::vec3(1, 0, 0);
-			glm::rotate(rand() % 628 / 100.f, b2Tob1Dir);
-		}
+			TransformComponent* body1Transform;
+			SphereCollisionComponent* body1Data;
+			VelocityComponent* body1Velocity;
+			MassComponent* body1Mass;
+			NULL_COMPONENT* _;
+			std::tie(body1Data, body1Transform, body1Velocity, body1Mass, _) = collision.body1;
 
-		body1Transform->SetPos(body1Transform->GetPos() + b2Tob1Dir * collision.overlap / 2.f);
-		body2Transform->SetPos(body2Transform->GetPos() - b2Tob1Dir * collision.overlap / 2.f);
+			TransformComponent* body2Transform;
+			SphereCollisionComponent* body2Data;
+			VelocityComponent* body2Velocity;
+			MassComponent* body2Mass;
+			std::tie(body2Data, body2Transform, body2Velocity, body2Mass, _) = collision.body2;
 
-		glm::vec3 newBody1Velocity = body1Velocity->getVelocity(), newBody2Velocity = body2Velocity->getVelocity();
+			glm::vec3	b1Pos = body1Transform->GetPos(),
+				b2Pos = body2Transform->GetPos();
 
-		if (glm::dot(-b2Tob1Dir, body1Velocity->getVelocity()))
-		{
-			newBody1Velocity = newBody2Velocity;
-		}
-		if (glm::dot(b2Tob1Dir, body1Velocity->getVelocity()))
-		{
-			newBody2Velocity = body1Velocity->getVelocity();
-		}
-		if (body1Velocity->getVelocity() != newBody1Velocity)
-		{
-			body1Velocity->setVelocity(newBody1Velocity);
-		}
+			glm::vec3 b2Tob1Dir = glm::normalize(b1Pos - b2Pos);
 
-		if (body2Velocity->getVelocity() != newBody2Velocity)
-		{
-			body2Velocity->setVelocity(newBody2Velocity);
+			if (b1Pos == b2Pos)
+			{
+				b2Tob1Dir = glm::vec3(1, 0, 0);
+				glm::rotate(rand() % 628 / 100.f, b2Tob1Dir);
+			}
+
+			body1Transform->SetPos(body1Transform->GetPos() + b2Tob1Dir * collision.overlap / 2.f);
+			body2Transform->SetPos(body2Transform->GetPos() - b2Tob1Dir * collision.overlap / 2.f);
+
+			glm::vec3 newBody1Velocity = body1Velocity->getVelocity(), newBody2Velocity = body2Velocity->getVelocity();
+			if (glm::dot(-b2Tob1Dir, body1Velocity->getVelocity()))
+			{
+				newBody1Velocity = (newBody2Velocity * (body1Mass->mass - body2Mass->mass) + (2 * body2Mass->mass * newBody2Velocity)) / (body1Mass->mass + body2Mass->mass);
+			}
+			if (glm::dot(b2Tob1Dir, body1Velocity->getVelocity()))
+			{
+				newBody2Velocity = (body1Velocity->getVelocity() * (body1Mass->mass - body2Mass->mass) + (2 * body2Mass->mass * body1Velocity->getVelocity())) / (body1Mass->mass + body2Mass->mass);
+			}
+			if (body1Velocity->getVelocity() != newBody1Velocity)
+			{
+				body1Velocity->setVelocity(newBody1Velocity);
+			}
+
+			if (body2Velocity->getVelocity() != newBody2Velocity)
+			{
+				body2Velocity->setVelocity(newBody2Velocity);
+			}
 		}
+		kv.second.clear();
 	}
-
-	m_collidingPairs.clear();
 }
 
-void CollisionSystem::findCollidingPairs(std::vector<SphereBodyData>& spheres)
+void CollisionSystem::findCollidingPairs()
 {
-	std::vector<std::pair<SphereBodyData&, SphereBodyData&>> m_bodyPairs;
-	//N(N-1)/2
-	m_bodyPairs.reserve((spheres.size() * (spheres.size() - 1)) / 2);
-	for (int i = 0; i < spheres.size(); i++)
-	{
-		for (int j = i + 1; j < spheres.size(); j++)
+	int batchSize = 10;
+	BATCH_LIST_BEGIN(m_spheres, batchSize, sphere1, &)
+		for (int k = i + 1; k < m_spheres.size(); k++)
 		{
-			m_bodyPairs.push_back({spheres[i], spheres[j]});
+			pairCollidingCheck(sphere1, m_spheres[k]);
 		}
-	}
-
-	for (auto& pair : m_bodyPairs)
-	{
-		pairCollidingCheck(pair.first, pair.second);
-	}
+	BATCH_LIST_END
 }
 
-void CollisionSystem::pairCollidingCheck(SphereBodyData& body1, SphereBodyData& body2)
+void CollisionSystem::pairCollidingCheck(SphereBodyData body1, SphereBodyData body2)
 {
 	TransformComponent* body1Transform;
 	SphereCollisionComponent* body1Data;
 	VelocityComponent* body1Velocity;
+	MassComponent* mass1;
 	NULL_COMPONENT* _;
-	std::tie(body1Data, body1Transform, body1Velocity, _, _) = body1;
+	std::tie(body1Data, body1Transform, body1Velocity, mass1, _) = body1;
 
 	TransformComponent* body2Transform;
 	SphereCollisionComponent* body2Data;
 	VelocityComponent* body2Velocity;
-	std::tie(body2Data, body2Transform, body2Velocity, _, _) = body2;
+	MassComponent* mass2;
+	std::tie(body2Data, body2Transform, body2Velocity, mass2, _) = body2;
 
 	glm::vec3	b1Pos = body1Transform->GetPos(),
 				b2Pos = body2Transform->GetPos();
@@ -182,8 +187,7 @@ void CollisionSystem::pairCollidingCheck(SphereBodyData& body1, SphereBodyData& 
 
 	if (colliding)
 	{
-		float overlap = std::sqrt(radSquared - distSquared);
-
-		m_collidingPairs.push_back(CollisionPair(body1, body2, overlap));
+		float overlap = b1Radius + b2Radius - glm::distance(b1Pos, b2Pos) ;
+		m_collidingPairs[SDL_ThreadID()].push_back(CollisionPair(body1, body2, overlap));
 	}
 }

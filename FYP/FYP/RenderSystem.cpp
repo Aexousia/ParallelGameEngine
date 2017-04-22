@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "RenderSystem.h"
-#include "Circle.h"
 #include "TransformComponent.h"
 #include <MeshComponent.h>
 #include <MaterialComponent.h>
@@ -70,8 +69,10 @@ void RenderSystem::initialize(Size2D screenSize)
 	setupWindow();
 	initGlew();
 
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_STENCIL_TEST);
 
 	AddMeshesToLoadQueue();
 	AddShadersToLoadQueue();
@@ -88,7 +89,7 @@ void RenderSystem::setUpCamera()
 	m_camera.SetPosition(glm::vec3(0, 0, 0));
 	m_camera.SetLookAt(glm::vec3(0, 0, 1));
 	m_camera.SetWorldSize(m_windowSize.w, m_windowSize.h);
-	m_camera.SetClipping(.1, 1000);
+	m_camera.SetClipping(10, 2100);
 	m_camera.SetFOV(45);
 	m_camera.SetViewport(0, 0, m_windowSize.w, m_windowSize.h);
 }
@@ -166,7 +167,7 @@ void RenderSystem::process(float dt)
 
 	auto ticks2 = SDL_GetTicks();
 
-	std::cout << ticks2 - ticks1 << " - Rendering" << std::endl;
+	//std::cout << ticks2 - ticks1 << " - Rendering" << std::endl;
 }
 
 void RenderSystem::renderModels(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
@@ -215,7 +216,6 @@ void RenderSystem::renderModels(glm::mat4& projection, glm::mat4& view, glm::mat
 	}
 }
 
-
 void RenderSystem::renderModelsInstanced(glm::mat4& projection, glm::mat4& view, glm::mat4& VP)
 {
 	auto models = AutoMap::getComponentGroups<RenderSystem,  MeshComponent, 
@@ -258,6 +258,10 @@ void RenderSystem::renderModelsInstanced(glm::mat4& projection, glm::mat4& view,
 		for (auto& outerKv : instanceData)
 		{
 			auto mesh = outerKv.first;
+			if (mesh == SINGLETON(AssetLoader)->findAssetByKey<Mesh>("cube"))
+			{
+				glCullFace(GL_FRONT);
+			}
 			for (auto& kv : outerKv.second)
 			{
 				auto material = kv.first;
@@ -268,6 +272,10 @@ void RenderSystem::renderModelsInstanced(glm::mat4& projection, glm::mat4& view,
 				{
 					me->renderInstanced(std::get<0>(kv.second), std::get<1>(kv.second), std::get<2>(kv.second));
 				}
+			}
+			if (mesh == SINGLETON(AssetLoader)->findAssetByKey<Mesh>("cube"))
+			{
+				glCullFace(GL_BACK);
 			}
 		}
 	}

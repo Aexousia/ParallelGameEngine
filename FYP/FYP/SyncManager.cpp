@@ -5,7 +5,11 @@
 SyncManager::SyncManager() 
 	:	m_notifQueueLock(SDL_CreateMutex())
 {
-
+	auto& threadIds = SINGLETON(TaskQueue)->getThreadIds();
+	for (auto& id : threadIds)
+	{
+		m_notificationQueue[id];
+	}
 }
 
 void SyncManager::addRecipients(std::vector<IComponent*> recipients, int componentId)
@@ -39,6 +43,7 @@ void SyncManager::registerChanges(IComponent * self, Change changes)
 
 void SyncManager::DistributeChanges()
 {
+	auto ticks1 = SDL_GetTicks();
 	//to allow parallel distribution of changes, modifications to the same components
 	//must either be grouped together as one, or culled by system priority/time
 	//this results in a single change to each component at maximum, allowing us to parallelize the
@@ -64,6 +69,8 @@ void SyncManager::DistributeChanges()
 	BATCH_LIST_END
 
 	SINGLETON(TaskQueue)->waitUntilIdle();
+	auto ticks2 = SDL_GetTicks();
+	//std::cout << ticks2 - ticks1 << " - Sycnhronization" << std::endl;
 }
 
 void SyncManager::MergeNotificationQueue(std::vector<ChangeNotification>& out)
@@ -128,11 +135,4 @@ void SyncManager::FilterNotifications(std::vector<ChangeNotification>& notificat
 
 		result.push_back(observerNotification);
 	}
-}
-
-void SyncManager::registerThread()
-{
-	SDL_LockMutex(m_notifQueueLock);
-	m_notificationQueue[SDL_ThreadID()]; //creates empty list
-	SDL_UnlockMutex(m_notifQueueLock);
 }

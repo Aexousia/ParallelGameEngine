@@ -6,7 +6,7 @@
 void PhysicsSystem::process(float dt)
 {
 	auto bodies = AutoMap::getComponentGroups<PhysicsSystem, VelocityComponent, TransformComponent>();
-	for (auto body : bodies)
+	BATCH_LIST_BEGIN(bodies, 100, body, bodies, dt)
 	{
 		TransformComponent* bodyTransform;
 		VelocityComponent* bodyVelocity;
@@ -15,4 +15,5 @@ void PhysicsSystem::process(float dt)
 
 		bodyTransform->SetPos(bodyTransform->GetPos() + bodyVelocity->getVelocity() * dt);
 	}
+	BATCH_LIST_END
 }

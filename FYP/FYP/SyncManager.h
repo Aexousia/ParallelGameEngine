@@ -2,17 +2,10 @@
 #include "Singleton.h"
 #include <vector>
 #include "ECSInterfaces.h"
+#include <STDHelperFunctions.h>
 #include "../dependancies/sdl/SDL.h"
 #include <unordered_map>
 #include <map>
-
-template <typename T>
-std::vector<T> &operator+=(std::vector<T> &A, const std::vector<T> &B)
-{
-	A.reserve(A.size() + B.size());                // preallocate memory without erase original data
-	A.insert(A.end(), B.begin(), B.end());         // add B;
-	return A;                                        // here A could be named AB
-}
 
 //this struct is just a simple data structure which encapsulates a unit 
 //of change to be distributed to an observer
@@ -75,9 +68,6 @@ public:
 	void MergeNotificationQueue(std::vector<ChangeNotification>& out);
 
 	void FilterNotifications(std::vector<ChangeNotification>& notifQueue, std::vector<ChangeNotification*>& result);
-
-	//allows us to create a notification queue for each thread, allowing us to avoid synchronizing access to notificationQueue
-	void registerThread();
 
 private:
 	std::unordered_map<SDL_threadID, std::vector<ChangeNotification>> m_notificationQueue;

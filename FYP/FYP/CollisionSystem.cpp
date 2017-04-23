@@ -111,7 +111,7 @@ void CollisionSystem::resolveCollidingPairs()
 			std::tie(body2Data, body2Transform, body2Velocity, body2Mass, _) = collision.body2;
 
 			glm::vec3	b1Pos = body1Transform->GetPos(),
-				b2Pos = body2Transform->GetPos();
+						b2Pos = body2Transform->GetPos();
 
 			glm::vec3 b2Tob1Dir = glm::normalize(b1Pos - b2Pos);
 
@@ -124,24 +124,25 @@ void CollisionSystem::resolveCollidingPairs()
 			body1Transform->SetPos(body1Transform->GetPos() + b2Tob1Dir * collision.overlap / 2.f);
 			body2Transform->SetPos(body2Transform->GetPos() - b2Tob1Dir * collision.overlap / 2.f);
 
-			glm::vec3 newBody1Velocity = body1Velocity->getVelocity(), newBody2Velocity = body2Velocity->getVelocity();
-			if (glm::dot(-b2Tob1Dir, body1Velocity->getVelocity()))
-			{
-				newBody1Velocity = (newBody2Velocity * (body1Mass->mass - body2Mass->mass) + (2 * body2Mass->mass * newBody2Velocity)) / (body1Mass->mass + body2Mass->mass);
-			}
-			if (glm::dot(b2Tob1Dir, body1Velocity->getVelocity()))
-			{
-				newBody2Velocity = (body1Velocity->getVelocity() * (body1Mass->mass - body2Mass->mass) + (2 * body2Mass->mass * body1Velocity->getVelocity())) / (body1Mass->mass + body2Mass->mass);
-			}
-			if (body1Velocity->getVelocity() != newBody1Velocity)
+
+			//find velocities
+			auto n = b2Tob1Dir;
+			auto a1 = glm::dot(body1Velocity->getVelocity(), n);
+			auto a2 = glm::dot(body2Velocity->getVelocity(), n);
+			auto optimizedP = (2 * (a1 - a2)) / (body1Mass->mass + body2Mass->mass);
+			glm::vec3 newBody1Velocity = body1Velocity->getVelocity() - (n * optimizedP * body2Mass->mass), 
+					  newBody2Velocity = body2Velocity->getVelocity() + (n * optimizedP * body1Mass->mass);
+
+
+			if (glm::dot(-b2Tob1Dir, newBody1Velocity))
 			{
 				body1Velocity->setVelocity(newBody1Velocity);
 			}
-
-			if (body2Velocity->getVelocity() != newBody2Velocity)
+			if (glm::dot(b2Tob1Dir, newBody2Velocity))
 			{
 				body2Velocity->setVelocity(newBody2Velocity);
 			}
+
 		}
 		kv.second.clear();
 	}
@@ -188,7 +189,7 @@ void CollisionSystem::pairCollidingCheck(SphereBodyData body1, SphereBodyData bo
 
 	if (colliding)
 	{
-		float overlap = b1Radius + b2Radius - glm::distance(b1Pos, b2Pos) ;
+		float overlap = (b1Radius + b2Radius - glm::distance(b1Pos, b2Pos)) * 1.1f ;
 		m_collidingPairs[SDL_ThreadID()].push_back(CollisionPair(body1, body2, overlap));
 	}
 }

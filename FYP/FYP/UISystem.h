@@ -112,8 +112,8 @@ private:
 		frames.push_back(ImGui::GetIO().Framerate);
 		if (frames.size() > 200)
 		{
-			frames.emplace_back(frames.front());
-			frames.pop_back();
+			assert(!frames.empty());
+			frames.erase(frames.begin());
 		}
 
 		float data[100];

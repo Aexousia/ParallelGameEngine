@@ -83,7 +83,7 @@ public:
 		ImGui::Separator();
 		const char* scenes[] = { "default", "DemoScene4", "DemoScene3", "DemoScene2", "DemoScene1" };
 		const char* aliases[] = { "default (empty)", "Monkey", "1000 Balls", "1500 Balls", "2000 Balls" };
-		static int currentScene = 0;
+		static int currentScene = 3;
 		ImGui::ListBox("Scenes", &currentScene, aliases, 5, 4);
 		ImGui::SameLine();
 		if (ImGui::Button("Switch Scene \n(double click)"))
